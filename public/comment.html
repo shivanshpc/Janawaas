@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Comment - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+    <style>
+        .comment-page {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .comment-thread {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .comment-main {
+            border: 2px solid var(--primary-color);
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .comment-context {
+            background: var(--bg-secondary);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .comment-context h4 {
+            margin: 0 0 10px 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .comment-context a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .comment-context a:hover {
+            text-decoration: underline;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .comment-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .comment-author-info {
+            flex: 1;
+        }
+
+        .comment-author-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-right: 8px;
+        }
+
+        .comment-author-name a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .comment-author-name a:hover {
+            color: var(--primary-color);
+        }
+
+        .comment-username {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .comment-date {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .comment-body {
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 1rem;
+            margin: 15px 0;
+        }
+
+        .comment-actions {
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+        }
+
+        .comment-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .comment-action-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .replies-section {
+            margin-top: 20px;
+            padding-left: 20px;
+            border-left: 2px solid var(--border-color);
+        }
+
+        .replies-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .reply-item {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .parent-comment {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            opacity: 0.8;
+        }
+
+        .parent-comment-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .all-comments-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .all-comments-link:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge.authority {
+            background: #2196f3;
+            color: white;
+        }
+
+        .badge.admin {
+            background: #f44336;
+            color: white;
+        }
+
+        .badge.verified {
+            background: #4caf50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+        <div class="loading" id="loadingIndicator">Loading comment...</div>
+        
+        <div id="commentContent" style="display: none;">
+            <!-- Issue Context -->
+            <div class="comment-context">
+                <h4>💬 Comment on Issue</h4>
+                <div id="issueContext"></div>
+            </div>
+
+            <!-- Parent Comment (if this is a reply) -->
+            <div id="parentCommentSection" style="display: none;">
+                <span class="parent-comment-label">↩️ Replying to</span>
+                <div id="parentComment" class="parent-comment"></div>
+            </div>
+
+            <!-- Main Comment -->
+            <div class="comment-main" id="mainComment"></div>
+
+            <!-- Replies Section -->
+            <div id="repliesSection" style="display: none;">
+                <div class="replies-section">
+                    <h3 id="repliesCount"></h3>
+                    <div id="repliesList"></div>
+                </div>
+            </div>
+
+            <!-- Link to view all comments -->
+            <a class="all-comments-link" id="viewAllCommentsLink" style="margin: 20px;">View All Comments on Issue</a>
+        </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget" id="issueContextWidget">
+                <h3>On this Issue</h3>
+                <div id="issueContextSidebar" style="font-size: 0.875rem; color: var(--text-secondary);">Loading...</div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        let currentUser = null;
+        let currentComment = null;
+
+        // Get comment ID from URL
+        function getCommentId() {
+            const pathParts = window.location.pathname.split('/');
+            return pathParts[pathParts.length - 1];
+        }
+
+        // Initialize comment page
+        async function initCommentPage() {
+            currentUser = await checkAuth();
+            await updateNavigation();
+            
+            const commentId = getCommentId();
+            await loadComment(commentId);
+        }
+
+        // Load comment details
+        async function loadComment(commentId) {
+            try {
+                const headers = {};
+                if (currentUser) {
+                    headers['Authorization'] = `Bearer ${getToken()}`;
+                }
+
+                const response = await fetch(`${API_URL}/comments/${commentId}`, { headers });
+
+                if (!response.ok) throw new Error('Comment not found');
+
+                const data = await response.json();
+                currentComment = data.comment;
+                
+                displayComment(data);
+                
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('commentContent').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading comment:', error);
+                document.getElementById('loadingIndicator').innerHTML = 
+                    '<p class="error-message show">Failed to load comment. It may have been deleted.</p>';
+            }
+        }
+
+        // Display comment and thread
+        function displayComment(data) {
+            const { comment, parentComment, replies, issue } = data;
+
+            // Update page title
+            const authorName = comment.authorId?.displayName || comment.authorId?.name || 'Anonymous';
+            document.title = `${authorName}'s comment on ${issue.title} - JanAwaaz`;
+
+            // Issue context
+            const issueContext = document.getElementById('issueContext');
+            issueContext.innerHTML = `
+                <a href="/issue/${issue._id}">
+                    <strong>${issue.title}</strong>
+                </a>
+                <div style="margin-top: 5px; font-size: 0.875rem;">
+                    <span>${getCategoryIcon(issue.category)} ${issue.category}</span>
+                    <span style="margin: 0 8px">·</span>
+                    <span>📍 ${issue.district}</span>
+                    <span style="margin: 0 8px">·</span>
+                    <span class="status-badge status-${issue.status}">${formatStatus(issue.status)}</span>
+                </div>
+            `;
+
+            // Populate right sidebar with issue context
+            const issueContextSidebar = document.getElementById('issueContextSidebar');
+            if (issueContextSidebar) {
+                issueContextSidebar.innerHTML = `
+                    <a href="/issue/${issue._id}" style="color: var(--primary-color); font-weight: 600; text-decoration: none; display: block; margin-bottom: 8px;">${issue.title}</a>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+                        <span style="background: var(--bg-light); padding: 3px 8px; border-radius: 12px;">${getCategoryIcon(issue.category)} ${issue.category}</span>
+                        <span style="background: var(--bg-light); padding: 3px 8px; border-radius: 12px;">📍 ${issue.district}</span>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <span class="status-badge status-${issue.status}">${formatStatus(issue.status)}</span>
+                    </div>
+                    <a href="/issue/${issue._id}#comments" style="display: block; margin-top: 12px; color: var(--primary-color); font-size: 0.875rem;">View all comments →</a>
+                `;
+            }
+
+            // Parent comment if exists
+            if (parentComment) {
+                document.getElementById('parentCommentSection').style.display = 'block';
+                document.getElementById('parentComment').innerHTML = renderComment(parentComment, true);
+            }
+
+            // Main comment
+            document.getElementById('mainComment').innerHTML = renderComment(comment, false);
+
+            // Replies
+            if (replies && replies.length > 0) {
+                document.getElementById('repliesSection').style.display = 'block';
+                document.getElementById('repliesCount').textContent = 
+                    `${replies.length} ${replies.length === 1 ? 'Reply' : 'Replies'}`;
+                
+                const repliesList = document.getElementById('repliesList');
+                repliesList.innerHTML = replies.map(reply => `
+                    <div class="reply-item">
+                        ${renderComment(reply, true)}
+                    </div>
+                `).join('');
+            }
+
+            // View all comments link
+            document.getElementById('viewAllCommentsLink').href = `/issue/${issue._id}#comments`;
+        }
+
+        // Render a single comment
+        function renderComment(comment, compact = false) {
+            const author = comment.authorId;
+            const authorName = author.displayName || author.name || 'Anonymous';
+            const authorUsername = author.username;
+            const initials = authorName.split(' ').map(n => n[0]).join('').toUpperCase();
+
+            let roleBadge = '';
+            if (author.role === 'authority') {
+                roleBadge = '<span class="badge authority">Authority</span>';
+            } else if (author.role === 'admin') {
+                roleBadge = '<span class="badge admin">Admin</span>';
+            }
+
+            return `
+                <div class="comment-header">
+                    <div class="comment-avatar">${initials}</div>
+                    <div class="comment-author-info">
+                        <div>
+                            <span class="comment-author-name">
+                                <a href="/profile/${authorUsername}">${authorName}</a>
+                            </span>
+                            ${roleBadge}
+                        </div>
+                        <div>
+                            <span class="comment-username">@${authorUsername}</span>
+                            <span style="margin: 0 8px; color: var(--text-secondary)">·</span>
+                            <span class="comment-date">${formatDate(comment.createdAt)}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="comment-body">${escapeHtml(comment.body)}</div>
+                ${!compact ? `
+                <div class="comment-actions">
+                    <button class="comment-action-btn" onclick="window.location='/issue/${comment.issueId}#comment-${comment._id}'">
+                        💬 Reply on Issue
+                    </button>
+                    <button class="comment-action-btn" onclick="shareComment('${comment._id}')">
+                        🔗 Share
+                    </button>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'roads': '🛣️',
+                'garbage': '🗑️',
+                'electricity': '💡',
+                'water': '💧',
+                'streetlight': '🔦',
+                'drainage': '🌊',
+                'parks': '🌳',
+                'other': '📌'
+            };
+            return icons[category.toLowerCase()] || '📌';
+        }
+
+        function formatStatus(status) {
+            return status.replace('-', ' ').replace('_', ' ').toUpperCase();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffMinutes = Math.floor(diffTime / (1000 * 60));
+            const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffMinutes < 1) return 'Just now';
+            if (diffMinutes < 60) return `${diffMinutes}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, '<br>');
+        }
+
+        function shareComment(commentId) {
+            const url = `${window.location.origin}/comment/${commentId}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Comment on JanAwaaz',
+                    url: url
+                }).catch(console.error);
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(console.error);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initCommentPage);
+    </script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>

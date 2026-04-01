@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Authority Detail - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        :root {
+            --detail-bg: #f8fafc;
+            --detail-card: #ffffff;
+            --detail-input: #f1f5f9;
+            --detail-text: #0f172a;
+            --detail-text-muted: #64748b;
+            --detail-accent: #0284c7;
+            --detail-border: #e2e8f0;
+            --detail-avatar-bg: #e2e8f0;
+            --detail-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode {
+            --detail-bg: #000000;
+            --detail-card: #111111;
+            --detail-input: #1a1a1a;
+            --detail-text: #ffffff;
+            --detail-text-muted: #a0aec0;
+            --detail-accent: #54f0df;
+            --detail-border: #2d3748;
+            --detail-avatar-bg: #1a1a1a;
+            --detail-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .detail-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--detail-accent);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: translateX(-4px);
+            color: var(--detail-accent);
+            opacity: 0.8;
+        }
+
+        .authority-profile-card {
+            background: transparent;
+            border: none;
+            border-radius: 24px;
+            overflow: visible;
+        }
+
+        .profile-header-banner {
+            display: none;
+        }
+
+        .profile-header-content {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            width: 100%;
+            position: relative !important;
+            margin: 0 !important;
+            padding: 20px 0 40px 0 !important;
+        }
+
+        .profile-avatar-large {
+            width: 130px;
+            height: 130px;
+            min-width: 130px;
+            background: var(--detail-avatar-bg);
+            border: 4px solid var(--detail-accent);
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: var(--detail-text);
+            box-shadow: var(--detail-shadow);
+            flex-shrink: 0;
+            z-index: 3;
+            box-sizing: border-box;
+            line-height: 1;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .profile-main-info {
+            flex: 1;
+            min-width: 0;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .profile-main-info h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--detail-text);
+            margin: 0;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .dark-mode .profile-main-info h1 {
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .profile-designation-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .designation-text {
+            font-size: 1rem;
+            color: var(--detail-accent);
+            font-weight: 700;
+        }
+
+        .expertise-tag {
+            padding: 6px 12px;
+            background: var(--detail-input);
+            border: 1px solid var(--detail-border);
+            border-radius: 100px;
+            color: var(--detail-accent);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .profile-body {
+            padding: 0 40px 40px;
+            background: transparent;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+
+        .profile-section {
+            margin-bottom: 40px;
+        }
+
+        .profile-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .profile-section h2 {
+            font-size: 1.4rem;
+            color: var(--detail-text);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--detail-border);
+            font-weight: 800;
+        }
+
+        .about-content {
+            color: var(--detail-text-muted);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .info-card {
+            background: var(--detail-card);
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid var(--detail-border);
+            transition: all 0.3s ease;
+            box-shadow: var(--detail-shadow);
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--detail-accent);
+        }
+
+        .info-card label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--detail-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .info-card span {
+            font-size: 1.2rem;
+            color: var(--detail-text);
+            font-weight: 600;
+        }
+
+        .stats-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .stat-sidebar-card {
+            background: var(--detail-card);
+            border: 1px solid var(--detail-border);
+            padding: 32px;
+            border-radius: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--detail-shadow);
+        }
+
+        .stat-sidebar-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--detail-accent);
+        }
+
+        .stat-sidebar-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--detail-accent);
+            display: block;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .stat-sidebar-label {
+            font-size: 0.9rem;
+            color: var(--detail-text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--detail-text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            background: var(--detail-card);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--detail-border);
+            box-shadow: var(--detail-shadow);
+        }
+
+        .contact-item:hover {
+            color: var(--detail-text);
+            border-color: var(--detail-accent);
+            transform: translateX(4px);
+        }
+
+        .contact-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--detail-input);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--detail-accent);
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .contact-item span {
+            word-break: break-all;
+            font-weight: 500;
+        }
+
+        @media (max-width: 992px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+            .profile-header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-top: -80px;
+            }
+            .profile-main-info h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-header-content, .profile-body {
+                padding: 0 24px 24px;
+            }
+            .profile-main-info h1 {
+                font-size: 2.2rem;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="feed-layout">
+        <aside class="feed-sidebar-left">
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" class="active" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="feed-center" style="background: var(--detail-bg);">
+            <div class="detail-container">
+                <a href="/authorities" class="back-link">← Back to Authorities</a>
+
+                <div id="authorityContent">
+                    <!-- Loading State -->
+                    <div style="text-align: center; padding: 100px;">
+                        <div class="loading-spinner" style="border-top-color: var(--detail-accent);"></div>
+                        <p style="color: var(--detail-text-muted); margin-top: 20px;">Loading authority profile...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await updateNavigation();
+            
+            // Get ID from URL path: /authority/:id
+            const pathParts = window.location.pathname.split('/');
+            let id = pathParts.length > 2 && pathParts[2] !== 'authority-detail.html' ? pathParts[2] : null;
+            
+            // Fallback to query parameter: ?id=xxx
+            if (!id) {
+                const params = new URLSearchParams(window.location.search);
+                id = params.get('id');
+            }
+
+            if (id) {
+                fetchAuthorityDetail(id);
+            } else {
+                window.location.href = '/authorities';
+            }
+        });
+
+        async function fetchAuthorityDetail(id) {
+            console.log('Fetching authority with ID:', id);
+            try {
+                // Use API_URL from config.js if available
+                const apiUrl = window.API_URL || '/api';
+                const response = await fetch(`${apiUrl}/authority/${id}`);
+                console.log('API Response status:', response.status);
+                if (!response.ok) throw new Error('Authority not found');
+                const auth = await response.json();
+                console.log('Authority data:', auth);
+                renderDetail(auth);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('authorityContent').innerHTML = `
+                    <div style="text-align: center; padding: 100px;">
+                        <h2 style="color: #ffffff;">Authority Not Found</h2>
+                        <p style="color: #9ec5de;">The authority profile you're looking for doesn't exist.</p>
+                        <a href="/authorities" class="btn btn-primary" style="margin-top: 20px; display: inline-block;">Return to List</a>
+                    </div>
+                `;
+            }
+        }
+
+        function renderDetail(auth) {
+            const user = auth.userId || {};
+            const name = user.displayName || auth.designation || 'Unknown Authority';
+            
+            // Smarter initials logic
+            const ignoreWords = ['Authority', 'Department', 'Office', 'of', 'and'];
+            let nameParts = name.split(' ').filter(word => !ignoreWords.includes(word));
+            if (nameParts.length === 0) nameParts = name.split(' ');
+            const initials = nameParts.map(n => n[0]).join('').toUpperCase();
+            
+            // Dynamic font size for initials
+            const fontSize = initials.length > 5 ? '1.4rem' : (initials.length > 4 ? '1.8rem' : '2.2rem');
+            
+            const html = `
+                <div class="authority-profile-card">
+                    <div class="profile-header-banner"></div>
+                    <div class="profile-header-content">
+                        <div class="profile-avatar-large" style="font-size: ${fontSize};">${initials}</div>
+                        <div class="profile-main-info">
+                            <h1>${name}</h1>
+                            <div class="profile-designation-badge">
+                                <span class="designation-text">${auth.designation || 'Official'}</span>
+                                <span class="expertise-tag">${auth.areaOfExpertise || 'General'}</span>
+                            </div>
+                            <div id="mergeActionContainer" style="margin-top: 15px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-body">
+                    <div class="profile-grid">
+                        <div class="profile-left">
+                            <div class="profile-section">
+                                <h2>About</h2>
+                                <div class="about-content">
+                                    ${auth.about || 'Dedicated to serving the community and ensuring efficient governance in the region.'}
+                                </div>
+                            </div>
+
+                            <div class="profile-section">
+                                <h2>Professional Summary</h2>
+                                <div class="about-content">
+                                    ${auth.description || `Responsible for ${auth.areaOfExpertise || 'public'} services in ${auth.jurisdictionDistrict}.`}
+                                </div>
+                            </div>
+
+                            <div class="profile-section">
+                                <h2>Jurisdiction Details</h2>
+                                <div class="info-grid">
+                                    <div class="info-card">
+                                        <label>District</label>
+                                        <span>${auth.jurisdictionDistrict}</span>
+                                    </div>
+                                    <div class="info-card">
+                                        <label>State</label>
+                                        <span>${auth.jurisdictionState}</span>
+                                    </div>
+                                    <div class="info-card">
+                                        <label>Department</label>
+                                        <span>${auth.department}</span>
+                                    </div>
+                                    <div class="info-card">
+                                        <label>Office Location</label>
+                                        <span>${auth.location || auth.jurisdictionDistrict + ', ' + auth.jurisdictionState}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-right">
+                            <div class="profile-section">
+                                <h2>Performance</h2>
+                                <div class="stats-sidebar">
+                                    <div class="stat-sidebar-card">
+                                        <span class="stat-sidebar-value">⭐ ${auth.averageRating.toFixed(1)}</span>
+                                        <span class="stat-sidebar-label">Citizen Rating</span>
+                                    </div>
+                                    <div class="stat-sidebar-card">
+                                        <span class="stat-sidebar-value">${auth.issuesResolved || 0}</span>
+                                        <span class="stat-sidebar-label">Issues Resolved</span>
+                                    </div>
+                                    <div class="stat-sidebar-card">
+                                        <span class="stat-sidebar-value">${auth.issuesAccepted || 0}</span>
+                                        <span class="stat-sidebar-label">Active Cases</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="profile-section">
+                                <h2>Contact</h2>
+                                <div class="contact-info">
+                                    <a href="mailto:${auth.contactEmail || user.email}" class="contact-item">
+                                        <div class="contact-icon">📧</div>
+                                        <span>${auth.contactEmail || user.email || 'Not provided'}</span>
+                                    </a>
+                                    ${auth.contactPhone ? `
+                                        <a href="tel:${auth.contactPhone}" class="contact-item">
+                                            <div class="contact-icon">📞</div>
+                                            <span>${auth.contactPhone}</span>
+                                        </a>
+                                    ` : ''}
+                                    ${auth.website ? `
+                                        <a href="${auth.website}" target="_blank" class="contact-item">
+                                            <div class="contact-icon">🌐</div>
+                                            <span>Official Website</span>
+                                        </a>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('authorityContent').innerHTML = html;
+            setupMergeAction(auth);
+        }
+
+        async function setupMergeAction(auth) {
+            const currentUser = await checkAuth();
+            if (!currentUser || currentUser.role !== 'authority') return;
+            
+            const currentAuthId = currentUser.authorityDetails?._id;
+            const viewedAuthId = auth._id;
+            
+            if (currentAuthId === viewedAuthId) return;
+            
+            const container = document.getElementById('mergeActionContainer');
+            
+            const isMerged = currentUser.authorityDetails.mergedAuthorities?.some(m => (m._id || m) === viewedAuthId);
+            const isPending = auth.pendingMergeRequests?.some(id => id === currentAuthId);
+            
+            if (isMerged) {
+                container.innerHTML = `
+                    <button class="btn btn-secondary" onclick="handleUnmerge('${viewedAuthId}')" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600;">Unmerge Issues</button>
+                `;
+            } else if (isPending) {
+                container.innerHTML = `
+                    <button class="btn btn-secondary" disabled style="opacity: 0.7; padding: 10px 20px; border-radius: 12px;">Merge Request Pending</button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button class="btn btn-primary" onclick="handleMergeRequest('${viewedAuthId}')" style="background: var(--detail-accent); color: var(--detail-bg); border: none; font-weight: bold; padding: 10px 20px; border-radius: 12px;">Request to Merge Issues</button>
+                `;
+            }
+        }
+
+        async function handleMergeRequest(targetAuthId) {
+            if (!confirm('Send a request to merge issues with this authority?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/authority/merge-request/${targetAuthId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+                
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+                
+                alert('Merge request sent successfully!');
+                location.reload();
+            } catch (error) {
+                console.error('Merge request failed:', error);
+                alert(error.message);
+            }
+        }
+
+        async function handleUnmerge(targetAuthId) {
+            if (!confirm('Are you sure you want to unmerge issues with this authority?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/authority/unmerge/${targetAuthId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+                
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+                
+                alert('Authorities unmerged successfully!');
+                location.reload();
+            } catch (error) {
+                console.error('Unmerge failed:', error);
+                alert(error.message);
+            }
+        }
+    </script>
+</body>
+</html>

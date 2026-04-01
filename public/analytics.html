@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Analytics Dashboard - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .analytics-dashboard {
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2rem;
+            opacity: 0.6;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            font-size: 1.3rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .filters-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .authority-table {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .authority-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .authority-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .authority-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .authority-table tbody tr:hover {
+            background-color: var(--bg-light);
+        }
+
+        .rating-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .rating-excellent {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .rating-good {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .rating-average {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .rating-poor {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .authority-table {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/admin" id="adminLink" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/analytics" class="active" title="Analytics">
+                    <span class="nav-icon">📊</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" id="navLogout" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>📊 Analytics Dashboard</h1>
+                <p>Real-time insights into civic issues and authority performance</p>
+            </div>
+
+            <!-- Analytics Dashboard Content -->
+            <div class="analytics-dashboard">
+<!-- Loading State -->
+        <div id="loadingState" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading analytics data...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" style="display: none;">
+            <!-- Key Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-value" id="totalIssues">0</div>
+                    <div class="stat-label">Total Issues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="resolvedIssues">0</div>
+                    <div class="stat-label">Issues Resolved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🆕</div>
+                    <div class="stat-value" id="todayIssues">0</div>
+                    <div class="stat-label">Issues Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-value" id="todayResolved">0</div>
+                    <div class="stat-label">Resolved Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📍</div>
+                    <div class="stat-value" id="activeDistricts">0</div>
+                    <div class="stat-label">Active Districts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="totalUsers">0</div>
+                    <div class="stat-label">Registered Users</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <h3>📌 Filters</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Time Range</label>
+                        <select id="timeRangeFilter">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="180">Last 6 Months</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Category</label>
+                        <select id="categoryFilter">
+                            <option value="all">All Categories</option>
+                            <option value="roads">Roads</option>
+                            <option value="sanitation">Sanitation</option>
+                            <option value="electricity">Electricity</option>
+                            <option value="water">Water</option>
+                            <option value="environment">Environment</option>
+                            <option value="health">Health</option>
+                            <option value="education">Education</option>
+                            <option value="corruption">Corruption</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>State</label>
+                        <select id="stateFilter">
+                            <option value="all">All States</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>District</label>
+                        <select id="districtFilter">
+                            <option value="all">All Districts</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <!-- Category Breakdown Chart -->
+                <div class="chart-card">
+                    <h3>📊 Issues by Category</h3>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Issue Trend Chart -->
+                <div class="chart-card">
+                    <h3>📈 Issues Trend</h3>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- District Heatmap Chart -->
+                <div class="chart-card">
+                    <h3>🗺️ Top Districts by Issues</h3>
+                    <div class="chart-container">
+                        <canvas id="districtChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Resolution Rate Chart -->
+                <div class="chart-card">
+                    <h3>⏱️ Average Resolution Time</h3>
+                    <div class="chart-container">
+                        <canvas id="resolutionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authority Performance Table -->
+            <div class="authority-table">
+                <h3 style="padding: 20px 20px 0;">🏛️ Authority Performance</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Authority Name</th>
+                            <th>Department</th>
+                            <th>Issues Accepted</th>
+                            <th>Issues Resolved</th>
+                            <th>Average Rating</th>
+                            <th>Avg Resolution Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="authorityTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+            </div><!-- end analytics-dashboard -->
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                <h3>Overview</h3>
+                <div class="sidebar-widget-item">
+                    <div class="label">Total Issues</div>
+                    <div class="value" id="sidebarTotalIssues">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Resolved</div>
+                    <div class="value" id="sidebarResolved">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Today</div>
+                    <div class="value" id="sidebarToday">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Users</div>
+                    <div class="value" id="sidebarUsers">—</div>
+                </div>
+            </div>
+            <div class="sidebar-widget">
+                <h3>Admin Tools</h3>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+                    <a href="/admin" style="display:block;padding:8px 12px;background:var(--bg-light);border-radius:8px;text-decoration:none;color:var(--text-primary);font-size:0.875rem;">⚙️ Dashboard</a>
+                    <a href="/admin-authorities" style="display:block;padding:8px 12px;background:var(--bg-light);border-radius:8px;text-decoration:none;color:var(--text-primary);font-size:0.875rem;">🏛️ Authorities</a>
+                    <a href="/leaderboard" style="display:block;padding:8px 12px;background:var(--bg-light);border-radius:8px;text-decoration:none;color:var(--text-primary);font-size:0.875rem;">🏆 Leaderboard</a>
+                </div>
+            </div>
+        </aside>
+    </div>
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/statsChart.js"></script>
+    <script>
+        let categoryChart, trendChart, districtChart, resolutionChart;
+
+        // Check admin access
+        async function checkAdminAccess() {
+            const user = await checkAuth();
+            if (!user || user.role !== 'admin') {
+                alert('Access denied. Admin privileges required.');
+                window.location.href = '/';
+                return false;
+            }
+            return true;
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                // Fetch summary stats
+                const statsResponse = await fetch('/api/analytics/summary', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!statsResponse.ok) throw new Error('Failed to fetch stats');
+                
+                const stats = await statsResponse.json();
+                
+                // Update stat cards
+                document.getElementById('totalIssues').textContent = stats.totalIssues || 0;
+                document.getElementById('resolvedIssues').textContent = stats.resolvedIssues || 0;
+                document.getElementById('todayIssues').textContent = stats.todayIssues || 0;
+                document.getElementById('todayResolved').textContent = stats.todayResolved || 0;
+                document.getElementById('activeDistricts').textContent = stats.activeDistricts || 0;
+                document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+
+                // Update sidebar stats
+                const sb = { sidebarTotalIssues: stats.totalIssues, sidebarResolved: stats.resolvedIssues, sidebarToday: stats.todayIssues, sidebarUsers: stats.totalUsers };
+                for (const [id, val] of Object.entries(sb)) { const el = document.getElementById(id); if (el) el.textContent = val || 0; }
+                
+                // Load charts
+                await loadCategoryChart();
+                await loadTrendChart();
+                await loadDistrictChart();
+                await loadResolutionChart();
+                await loadAuthorityPerformance();
+                
+                // Show dashboard
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                document.getElementById('loadingState').innerHTML = '<p>Error loading analytics data</p>';
+            }
+        }
+
+        // Load category chart
+        async function loadCategoryChart() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/analytics/categories', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                categoryChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.map(d => d.category),
+                        datasets: [{
+                            data: data.map(d => d.count),
+                            backgroundColor: [
+                                '#2563eb', '#10b981', '#f59e0b', '#ef4444',
+                                '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading category chart:', error);
+            }
+        }
+
+        // Load trend chart
+        async function loadTrendChart() {
+            try {
+                const token = localStorage.getItem('token');
+                const days = document.getElementById('timeRangeFilter').value;
+                
+                const response = await fetch(`/api/analytics/issues-trend?days=${days}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                const ctx = document.getElementById('trendChart').getContext('2d');
+                
+                if (trendChart) trendChart.destroy();
+                
+                trendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(d => d.date),
+                        datasets: [{
+                            label: 'Issues Reported',
+                            data: data.map(d => d.count),
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading trend chart:', error);
+            }
+        }
+
+        // Load district chart
+        async function loadDistrictChart() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/analytics/districts?limit=10', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                const ctx = document.getElementById('districtChart').getContext('2d');
+                districtChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(d => d.district),
+                        datasets: [
+                            {
+                                label: 'Total Issues',
+                                data: data.map(d => d.issueCount),
+                                backgroundColor: '#2563eb'
+                            },
+                            {
+                                label: 'Resolved',
+                                data: data.map(d => d.resolvedCount),
+                                backgroundColor: '#10b981'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading district chart:', error);
+            }
+        }
+
+        // Load resolution chart
+        async function loadResolutionChart() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/analytics/resolution-time', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                const ctx = document.getElementById('resolutionChart').getContext('2d');
+                resolutionChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Average', 'Fastest', 'Slowest'],
+                        datasets: [{
+                            label: 'Days',
+                            data: [
+                                data.averageDays || 0,
+                                data.fastestDays || 0,
+                                data.slowestDays || 0
+                            ],
+                            backgroundColor: ['#2563eb', '#10b981', '#ef4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Days'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading resolution chart:', error);
+            }
+        }
+
+        // Load authority performance
+        async function loadAuthorityPerformance() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/analytics/authorities', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                const tbody = document.getElementById('authorityTableBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No data available</td></tr>';
+                    return;
+                }
+                
+                data.forEach(auth => {
+                    const avgRating = auth.averageRating || 0;
+                    const ratingClass = avgRating >= 4 ? 'excellent' : avgRating >= 3 ? 'good' : avgRating >= 2 ? 'average' : 'poor';
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${auth.name || 'N/A'}</td>
+                        <td>${auth.department || 'N/A'}</td>
+                        <td>${auth.issuesAccepted || 0}</td>
+                        <td>${auth.issuesResolved || 0}</td>
+                        <td><span class="rating-badge rating-${ratingClass}">${avgRating.toFixed(1)} ⭐</span></td>
+                        <td>${auth.avgResolutionTime || 'N/A'} days</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error loading authority performance:', error);
+            }
+        }
+
+        // Filter change handlers
+        document.getElementById('timeRangeFilter').addEventListener('change', () => {
+            loadTrendChart();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await updateNavigation();
+            if (await checkAdminAccess()) {
+                await loadAnalytics();
+            }
+        });
+    </script>
+</body>
+</html>

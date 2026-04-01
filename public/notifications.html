@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Notifications - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo"><a href="/"></a></div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" class="active" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-post-btn" id="reportBtnWrap" style="display:none;">
+                <a href="/district" class="btn btn-primary">+ Report Issue</a>
+            </div>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center: Notifications -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>Notifications</h1>
+            </div>
+
+            <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-white); display:flex; align-items:center; justify-content:space-between;">
+                <div class="notifications-tabs" style="display:flex; gap:12px; align-items:center;">
+                    <button class="tab active" data-tab="all">All</button>
+                    <button class="tab" data-tab="priority">Priority</button>
+                    <button class="tab" data-tab="mentions">Mentions</button>
+                </div>
+                <div>
+                    <button id="markAllReadBtn" class="btn-link">Mark all as read</button>
+                </div>
+            </div>
+
+            <div style="padding: 18px; background: var(--bg-white);">
+                <div id="notificationList" class="notification-list">
+                    <div class="loading">Loading notifications...</div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Right Sidebar placeholder -->
+        <aside class="feed-sidebar-right">
+        </aside>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/realtime.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!localStorage.getItem('token')) {
+                // Redirect to login if unauthenticated
+                window.location.href = '/login';
+                return;
+            }
+
+            // Basic tab behavior (client-side filtering could be added)
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+                    btn.classList.add('active');
+                    // For now reload all notifications and rely on server filtering in the future
+                    loadNotifications();
+                });
+            });
+
+            // Load notifications into #notificationList
+            loadNotifications();
+        });
+    </script>
+</body>
+</html>

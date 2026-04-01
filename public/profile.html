@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Profile - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/profile.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" class="active" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-post-btn" id="reportBtnWrap">
+                <a href="/district" class="btn btn-primary">+ Report Issue</a>
+            </div>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>        </aside>
+
+        <!-- Main Content -->
+        <main class="feed-center">
+        <div class="loading" id="loadingIndicator" style="padding: 40px; text-align: center;">Loading profile...</div>
+
+        <div id="profileContent" style="display: none;">
+            <!-- Cover Photo -->
+            <div class="profile-cover"></div>
+
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <div class="avatar-circle" id="userAvatar">
+                        <span id="avatarInitials"></span>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h1 id="userName"></h1>
+                    <p class="username-display">@<span id="userUsername"></span></p>
+                    <p id="userEmail"></p>
+                    <div class="profile-badges">
+                        <span class="badge" id="userRole"></span>
+                        <span class="badge" id="userDistrict"></span>
+                        <span class="badge verification-badge" id="verificationBadge" style="display: none;"></span>
+                    </div>
+                    <div id="verificationAlert" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <span class="stat-value" id="reputationScore">0</span>
+                    <span class="stat-label">Reputation</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="issuesReportedCount">0</span>
+                    <span class="stat-label">Issues Reported</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="issuesResolvedCount">0</span>
+                    <span class="stat-label">Resolved</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="upvotesGivenCount">0</span>
+                    <span class="stat-label">Upvotes</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="commentsPostedCount">0</span>
+                    <span class="stat-label">Comments</span>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="profile-tabs">
+                <button class="tab-btn active" data-tab="issues">Issues</button>
+                <button class="tab-btn" data-tab="complaints" id="complaintTabBtn" style="display: none;">My Complaints</button>
+                <button class="tab-btn" data-tab="activity">Activity</button>
+            </div>
+
+            <!-- Tab Content: Issues Feed -->
+            <div class="profile-section">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab-issues">
+                        <div id="issuesFeed" class="issues-feed">
+                            <div class="loading">Loading issues...</div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab-complaints">
+                        <div id="complaintsFeed" class="complaints-feed">
+                            <div class="loading">Loading Complaints...</div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab-activity">
+                        <div id="userActivity" class="activity-list">
+                            <p class="no-issues">Activity feed coming soon</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </main>
+
+        <!-- Right Sidebar (optional - can add user stats or suggestions here) -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                <h3>👤 About</h3>
+                <div style="padding: 10px 0; font-size: 0.875rem; color: var(--text-secondary);">
+                    <p>View and manage your profile, issues, and activity.</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/verification.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        // Profile page logic with feed-style issue display
+        // API_URL is defined in auth.js
+        let currentUser = null;
+        let profileUser = null; // The user whose profile is being viewed
+        let allIssues = [];
+
+        // Get username from URL (supports both /profile/username and /profile?username=xxx)
+        function getUsernameFromURL() {
+            // First check path parameter: /profile/username
+            const pathParts = window.location.pathname.split('/');
+            if (pathParts.length > 2 && pathParts[2]) {
+                return pathParts[2];
+            }
+            
+            // Fallback to query parameter: /profile?username=xxx
+            const params = new URLSearchParams(window.location.search);
+            return params.get('username');
+        }
+
+        async function loadProfile() {
+            try {
+                // Check if user is logged in (optional - profiles are public)
+                currentUser = await checkAuth();
+                
+                // Get username from URL or use current user's username
+                const username = getUsernameFromURL();
+                
+                let profileUsername;
+                if (username) {
+                    // Viewing another user's profile (anyone can view)
+                    profileUsername = username;
+                } else if (currentUser) {
+                    // Viewing own profile - redirect to standalone URL
+                    profileUsername = currentUser.username;
+                    // Update URL to standalone format without reloading
+                    window.history.replaceState(null, '', `/profile/${currentUser.username}`);
+                } else {
+                    // Not logged in and no username specified - redirect to login
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // Fetch user profile by username (works with or without auth)
+                const headers = {};
+                if (currentUser) {
+                    headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+                }
+
+                const response = await fetch(`${API_URL}/users/${profileUsername}`, { headers });
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        document.getElementById('loadingIndicator').innerHTML = 
+                            '<p class="error-message show">User not found</p>';
+                        return;
+                    }
+                    throw new Error('Failed to load profile');
+                }
+
+                const { user, issues, complaints, stats } = await response.json();
+                
+                // Store the profile user
+                profileUser = user;
+
+                // Update page title to show profile being viewed
+                document.title = `${user.displayName} (@${user.username}) - JanAwaaz`;
+
+                // Display profile info
+                document.getElementById('userName').textContent = user.displayName;
+                document.getElementById('userUsername').textContent = user.username;
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userRole').textContent = user.role.toUpperCase();
+                document.getElementById('userDistrict').textContent = user.district + (user.state ? ', ' + user.state : '');
+                
+                // Avatar initials
+                const initials = user.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('avatarInitials').textContent = initials;
+                
+                // Verification status
+                const isVerified = user.isAadhaarVerified || user.isVerified;
+                const verificationBadge = document.getElementById('verificationBadge');
+                const verificationAlert = document.getElementById('verificationAlert');
+                
+                if (isVerified) {
+                    verificationBadge.textContent = '✓ Verified';
+                    verificationBadge.style.display = 'inline-block';
+                    verificationBadge.style.background = '#4caf50';
+                    verificationBadge.style.color = 'white';
+                } else if (currentUser && currentUser.username === user.username) {
+                    // Show alert only on own profile
+                    verificationAlert.innerHTML = `
+                        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                            <strong>⚠️ Identity Verification Required</strong>
+                            <p style="margin: 10px 0;">You must verify your identity to report issues, upvote, or comment. Verification helps maintain trust and accountability in our community.</p>
+                            <a href="/verify" style="display: inline-block; padding: 10px 20px; background: #ff6b35; color: white; text-decoration: none; border-radius: 5px; font-weight: 600;">Verify Now</a>
+                        </div>
+                    `;
+                    verificationAlert.style.display = 'block';
+                }
+
+                // Stats
+                document.getElementById('reputationScore').textContent = stats.reputationScore;
+                document.getElementById('issuesReportedCount').textContent = stats.issuesReported;
+                document.getElementById('issuesResolvedCount').textContent = stats.issuesResolved;
+                document.getElementById('upvotesGivenCount').textContent = stats.upvotesGiven;
+                document.getElementById('commentsPostedCount').textContent = stats.commentsPosted;
+
+                // Show profile content
+                const profileContent = document.getElementById('profileContent');
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                const issuesFeed = document.getElementById('issuesFeed');
+                
+                loadingIndicator.style.display = 'none';
+                profileContent.style.display = 'block';
+                
+                // Display user's issues (already fetched with profile)
+                allIssues = issues || [];
+                displayIssues(allIssues);
+
+                // Display Complaints if present (only on own profile)
+                if (complaints && complaints.length > 0) {
+                    document.getElementById('complaintTabBtn').style.display = 'inline-block';
+                    displayComplaints(complaints);
+                } else if (currentUser && currentUser.username === user.username) {
+                    // Show tab even if empty on own profile
+                    document.getElementById('complaintTabBtn').style.display = 'inline-block';
+                    const complaintsFeed = document.getElementById('complaintsFeed');
+                    if (complaintsFeed) complaintsFeed.innerHTML = '<p class="no-issues">You haven\'t filed any Complaints yet.</p>';
+                }
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('loadingIndicator').innerHTML = 
+                    '<p class="error-message show">Failed to load profile</p>';
+            }
+        }
+
+        // Display issues in feed style
+        function displayIssues(issues) {
+            const feed = document.getElementById('issuesFeed');
+
+            if (!feed) {
+                console.error('issuesFeed container not found!');
+                return;
+            }
+
+            // Apply feed styles
+            feed.style.display = 'flex';
+            feed.style.flexDirection = 'column';
+
+            if (!issues || issues.length === 0) {
+                feed.innerHTML = '<p class="no-issues">No issues reported yet</p>';
+                return;
+            }
+
+            feed.innerHTML = issues.map(issue => {
+                const authorName = profileUser?.displayName || issue.reportedBy?.displayName || 'Anonymous';
+                const authorUsername = profileUser?.username || issue.reportedBy?.username || '';
+                const avatarLetter = authorName.charAt(0).toUpperCase();
+                const isVerifiedAuthor = profileUser?.isAadhaarVerified || profileUser?.isVerified || false;
+                return `
+                <div class="issue-card" onclick="window.location='/issue/${issue._id}'">
+                    <div class="issue-card-top">
+                        <div class="issue-avatar" onclick="event.stopPropagation(); ${authorUsername ? `window.location='/profile/${authorUsername}'` : 'return false;'}">${avatarLetter}</div>
+                        <div class="issue-card-body">
+                            <div class="issue-card-author-row">
+                                <span class="issue-author-name">${authorUsername ? `<a href="/profile/${authorUsername}" onclick="event.stopPropagation()">${authorName}</a>` : authorName}</span>
+                                ${isVerifiedAuthor ? '<span class="verified-badge">✓</span>' : ''}
+                                ${authorUsername ? `<span class="issue-author-handle"><a href="/profile/${authorUsername}" onclick="event.stopPropagation()">@${authorUsername}</a></span>` : ''}
+                                <span class="issue-time-dot">·</span>
+                                <span class="issue-time-dot">${getTimeAgo(issue.createdAt)}</span>
+                            </div>
+                            <span class="issue-category-badge">${getCategoryIcon(issue.category)} ${issue.category}</span>
+                            ${issue.severityScore ? `<span class="severity-badge" style="margin-left:6px;" title="Severity">⚡ ${issue.severityScore.toFixed(1)}</span>` : ''}
+                            <div class="issue-card-title"><a href="/issue/${issue._id}" onclick="event.stopPropagation()">${issue.title}</a></div>
+                            <p class="issue-description">${issue.description.substring(0, 160)}${issue.description.length > 160 ? '...' : ''}</p>
+                            <div class="issue-card-meta">
+                                <span>📍 ${issue.district}${issue.state ? ', ' + issue.state : ''}</span>
+                                <span class="status-badge status-${issue.status.replace(/_/g, '-')}">${formatStatus(issue.status)}</span>
+                            </div>
+                            <div class="issue-card-actions" onclick="event.stopPropagation()">
+                                <button class="issue-action-btn">💬 ${issue.commentCount || 0}</button>
+                                <button class="issue-action-btn">👍 ${issue.upvoteCount || 0}</button>
+                                <button class="issue-action-btn">🔗 Share</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Display Complaints in feed style
+        function displayComplaints(complaints) {
+            const feed = document.getElementById('complaintsFeed');
+            if (!feed) return;
+
+            // Apply feed styles
+            feed.style.display = 'flex';
+            feed.style.flexDirection = 'column';
+
+            if (!complaints || complaints.length === 0) {
+                feed.innerHTML = '<p class="no-issues">No Complaints filed yet</p>';
+                return;
+            }
+
+            feed.innerHTML = complaints.map(complaint => {
+                const statusMap = {
+                    pending: 'Pending',
+                    submitted: 'Submitted',
+                    responded: 'Responded',
+                    closed: 'Closed'
+                };
+                const reasonMap = {
+                    declined_unsatisfied: 'Declined and Unsatisfied',
+                    no_acceptance_72h: 'No Acceptance within 72h',
+                    no_update_72h: 'No Update within 72h'
+                };
+
+                return `
+                <div class="issue-card" onclick="window.location='/issue/${complaint.issueId?._id || ''}'">
+                    <div class="issue-card-top">
+                        <div class="issue-card-body" style="padding-left: 0;">
+                            <div class="issue-card-author-row">
+                                <span class="issue-author-name">Complaint Reference: ${complaint.complaintReferenceNumber}</span>
+                                <span class="issue-time-dot">·</span>
+                                <span class="issue-time-dot">${getTimeAgo(complaint.createdAt)}</span>
+                            </div>
+                            <div class="issue-card-title">For Issue: ${complaint.issueId?.title || 'Unknown Issue'}</div>
+                            <p class="issue-description"><strong>Reason:</strong> ${reasonMap[complaint.reason] || complaint.reason}</p>
+                            ${complaint.description ? `<p class="issue-description"><strong>Details:</strong> ${complaint.description}</p>` : ''}
+                            <div class="issue-card-meta">
+                                <span>📍 ${complaint.issueId?.district || ''}${complaint.issueId?.state ? ', ' + complaint.issueId.state : ''}</span>
+                                <span class="status-badge status-${complaint.status}">${statusMap[complaint.status] || complaint.status}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Get category icon
+        function getCategoryIcon(category) {
+            const icons = {
+                roads: '🛣️',
+                garbage: '🗑️',
+                electricity: '⚡',
+                water: '💧',
+                streetlight: '💡',
+                drainage: '🌊',
+                other: '📋'
+            };
+            return icons[category] || '📋';
+        }
+
+        // Format status
+        function formatStatus(status) {
+            const statusMap = {
+                pending: 'Pending',
+                accepted: 'Accepted',
+                in_progress: 'In Progress',
+                resolved: 'Resolved',
+                denied: 'Denied'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Get time ago
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+            
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
+                }
+            }
+            
+            return 'just now';
+        }
+
+        // Tab switching functionality
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.dataset.tab;
+                    
+                    // Remove active class from all buttons and panes
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding pane
+                    button.classList.add('active');
+                    document.getElementById(`tab-${targetTab}`).classList.add('active');
+                });
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check for admin context
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === 'true') {
+                const sidebarNav = document.querySelector('.sidebar-nav');
+                if (sidebarNav) {
+                    sidebarNav.innerHTML = `
+                        <a href="/admin#home" title="Home">
+                            <span class="nav-icon">🏠</span>
+                            <span>Home</span>
+                        </a>
+                        <a href="/admin#users" title="Users">
+                            <span class="nav-icon">👥</span>
+                            <span>Users</span>
+                        </a>
+                        <a href="/admin#issues" title="Issues">
+                            <span class="nav-icon">📋</span>
+                            <span>Issues</span>
+                        </a>
+                        <a href="/admin#authorities" title="Authorities">
+                            <span class="nav-icon">🏛️</span>
+                            <span>Authorities</span>
+                        </a>
+                        <a href="/admin#moderation" title="Moderation">
+                            <span class="nav-icon">🛡️</span>
+                            <span>Moderation</span>
+                        </a>
+                        <a href="/admin#flagged" title="Flagged Users">
+                            <span class="nav-icon">🚩</span>
+                            <span>Flagged Users</span>
+                        </a>
+                        <a href="/admin#reports" title="Reports">
+                            <span class="nav-icon">📊</span>
+                            <span>Reports</span>
+                        </a>
+                        <a href="/admin#announcements" title="Announcements">
+                            <span class="nav-icon">📣</span>
+                            <span>Announcements</span>
+                        </a>
+                        <a href="#" id="navLogout" onclick="logout(); return false;" title="Logout">
+                            <span class="nav-icon">🚪</span>
+                            <span>Logout</span>
+                        </a>
+                    `;
+                }
+            }
+            await updateNavigation();
+            loadProfile();
+            setupTabs();
+        });
+    </script>
+        <script src="/js/statsChart.js"></script>
+</body>
+</html>
+
+        

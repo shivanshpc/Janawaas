@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Authority Management - JanAwaaz Admin</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <style>
+        :root {
+            --card-bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+        }
+
+        .dark-mode {
+            --card-bg: #111111;
+            --bg-secondary: #000000;
+            --border-color: #2d3748;
+            --text-primary: #f8fafc;
+            --text-secondary: #a0aec0;
+        }
+
+        .applications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            padding: 16px 20px;
+        }
+
+        .application-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            transition: box-shadow 0.2s;
+        }
+
+        .application-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .applicant-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .application-status {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-pending { background: #fff3e0; color: #e65100; }
+        .status-approved { background: #e8f5e9; color: #2e7d32; }
+        .status-rejected { background: #ffebee; color: #c62828; }
+
+        .application-details { margin: 12px 0; }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 6px;
+            font-size: 0.875rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 110px;
+        }
+
+        .detail-value { color: var(--text-primary); }
+
+        .application-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .application-actions .btn { flex: 1; padding: 8px 12px; font-size: 0.8125rem; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            grid-column: 1 / -1;
+        }
+
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+
+        /* Filters bar */
+        .auth-filters {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .auth-filters label { font-weight: 600; font-size: 0.875rem; color: var(--text-secondary); }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 12px;
+            max-width: 680px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 { margin: 0; color: var(--text-primary); }
+
+        .close-modal {
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+        }
+
+        .close-modal:hover { color: var(--text-primary); }
+
+        .document-preview {
+            margin: 16px 0;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .document-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .rejection-form { margin-top: 16px; }
+
+        .rejection-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/leaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/profile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/admin" title="Admin Dashboard">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/admin-authorities" class="active" title="Authorities">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Authorities</span>
+                </a>
+                <a href="#" id="navLogout" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+                    <a href="/notifications" id="navNotifications" title="Notifications">
+                        <span class="nav-icon">🔔</span>
+                        <span>Notifications</span>
+                    </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>🏛️ Authority Management</h1>
+                <p>Review and manage authority applications</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="auth-filters">
+                <label>Status:</label>
+                <select id="statusFilter">
+                    <option value="">All</option>
+                    <option value="pending" selected>Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+
+            <!-- Applications Grid -->
+            <div class="applications-grid" id="applicationsGrid">
+                <div class="empty-state">
+                    <div class="empty-state-icon">⏳</div>
+                    <p>Loading applications...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                <h3>Application Stats</h3>
+                <div class="sidebar-widget-item">
+                    <div class="label">Total</div>
+                    <div class="value" id="statTotal">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Pending</div>
+                    <div class="value" id="statPending">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Approved</div>
+                    <div class="value" id="statApproved">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Rejected</div>
+                    <div class="value" id="statRejected">—</div>
+                </div>
+            </div>
+            <div class="sidebar-widget">
+                <h3>Admin Tools</h3>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                    <a href="/admin" style="display:block; padding: 8px 12px; background: var(--bg-light); border-radius: 8px; text-decoration: none; color: var(--text-primary); font-size: 0.875rem;">⚙️ Dashboard</a>
+                    <a href="/analytics" style="display:block; padding: 8px 12px; background: var(--bg-light); border-radius: 8px; text-decoration: none; color: var(--text-primary); font-size: 0.875rem;">📊 Analytics</a>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- View Details Modal -->
+    <div class="modal" id="detailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Application Details</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/admin-authorities.js"></script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>

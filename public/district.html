@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>District Feed - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" class="active" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-post-btn">
+                <button class="btn btn-primary" id="createIssueBtn">+ Report Issue</button>
+            </div>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>District Feed</h1>
+                <p id="districtLabel">Issues in your district</p>
+            </div>
+
+            <!-- Composer (post new issue) -->
+            <div id="postComposer" class="post-composer" style="display:none;">
+                <div class="post-composer-inner">
+                    <div class="composer-avatar">U</div>
+                    <div class="composer-body">
+                        <textarea id="composerTextarea" class="composer-textarea" placeholder="What's happening? Report an issue in your area..." rows="3"></textarea>
+                        <div class="composer-controls">
+                            <div class="composer-left">
+                                <button id="composerImageBtn" class="btn btn-ghost" title="Add image">🖼️</button>
+                                <button id="composerLocationBtn" class="btn btn-ghost" title="Add location">📍</button>
+                                <select id="composerCategory" class="composer-category">
+                                    <option value="">Category</option>
+                                    <option value="roads">🛣️ Roads</option>
+                                    <option value="garbage">🗑️ Garbage</option>
+                                    <option value="electricity">⚡ Electricity</option>
+                                    <option value="water">💧 Water</option>
+                                    <option value="streetlight">💡 Streetlight</option>
+                                    <option value="drainage">🌊 Drainage</option>
+                                    <option value="other">📋 Other</option>
+                                </select>
+                            </div>
+                            <div class="composer-right">
+                                <button id="composerPostBtn" class="btn btn-primary btn-composer">Post</button>
+                            </div>
+                        </div>
+                        <div id="composerMetaRow" class="composer-meta-row" aria-live="polite"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-bar">
+                <select id="filterStatus">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+                <select id="filterCategory">
+                    <option value="">All Categories</option>
+                    <option value="roads">Roads</option>
+                    <option value="garbage">Garbage</option>
+                    <option value="electricity">Electricity</option>
+                    <option value="water">Water</option>
+                    <option value="streetlight">Streetlight</option>
+                    <option value="drainage">Drainage</option>
+                    <option value="other">Other</option>
+                </select>
+                <select id="filterVerified">
+                    <option value="">All Reporters</option>
+                    <option value="verified">✓ Verified Only</option>
+                </select>
+                <select id="sortBy">
+                    <option value="recent">Most Recent</option>
+                    <option value="severity">Most Urgent</option>
+                    <option value="upvotes">Most Upvoted</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
+                <button class="btn btn-secondary" id="toggleMapBtn">🗺️ Map</button>
+            </div>
+
+            <!-- Map View -->
+            <div id="mapView" class="map-container" style="display: none;">
+                <div class="map-controls">
+                    <button class="btn btn-secondary" id="nearbyIssuesBtn">📍 Near Me</button>
+                    <button class="btn btn-secondary" id="toggleHeatmapBtn" data-active="false">🔥 Heatmap</button>
+                    <button class="btn btn-secondary" id="toggleClusteringBtn" data-active="true">🎯 Clustering: ON</button>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <!-- Issues Feed -->
+            <div id="issuesFeed" class="issues-feed">
+                <div class="loading-spinner"></div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-search">
+                <span class="sidebar-search-icon">🔍</span>
+                <input type="text" placeholder="Search issues..." id="searchInput">
+            </div>
+            <div class="sidebar-widget">
+                <h3>District Stats</h3>
+                <div class="sidebar-widget-item">
+                    <div class="label">Total Issues</div>
+                    <div class="value" id="statTotal">—</div>
+                </div>
+                <div class="sidebar-widget-text-fallback" style="display:none;"></div>
+                <div style="padding:8px 0; height:220px;">
+                    <canvas class="stats-chart-canvas" aria-label="District stats chart"></canvas>
+                </div>
+            </div>
+            <div class="sidebar-widget">
+                <h3>Categories</h3>
+                <div class="categories-grid" style="margin-top: 8px;">
+                    <span class="category-tag" style="cursor:pointer;" onclick="document.getElementById('filterCategory').value='roads'; document.getElementById('filterCategory').dispatchEvent(new Event('change'))">🛣️ Roads</span>
+                    <span class="category-tag" style="cursor:pointer;" onclick="document.getElementById('filterCategory').value='garbage'; document.getElementById('filterCategory').dispatchEvent(new Event('change'))">🗑️ Garbage</span>
+                    <span class="category-tag" style="cursor:pointer;" onclick="document.getElementById('filterCategory').value='water'; document.getElementById('filterCategory').dispatchEvent(new Event('change'))">💧 Water</span>
+                    <span class="category-tag" style="cursor:pointer;" onclick="document.getElementById('filterCategory').value='electricity'; document.getElementById('filterCategory').dispatchEvent(new Event('change'))">⚡ Electricity</span>
+                    <span class="category-tag" style="cursor:pointer;" onclick="document.getElementById('filterCategory').value='streetlight'; document.getElementById('filterCategory').dispatchEvent(new Event('change'))">💡 Streetlight</span>
+                    <span class="category-tag" style="cursor:pointer;" onclick="document.getElementById('filterCategory').value='drainage'; document.getElementById('filterCategory').dispatchEvent(new Event('change'))">🌊 Drainage</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Create Issue Modal -->
+    <div id="createIssueModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Report an Issue</h2>
+            <form id="createIssueForm">
+                <div class="form-group">
+                    <label for="issueTitle">Title</label>
+                    <input type="text" id="issueTitle" required maxlength="200">
+                </div>
+                <div class="form-group">
+                    <label for="issueCategory">Category</label>
+                    <select id="issueCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="roads">Roads</option>
+                        <option value="garbage">Garbage</option>
+                        <option value="electricity">Electricity</option>
+                        <option value="water">Water</option>
+                        <option value="streetlight">Streetlight</option>
+                        <option value="drainage">Drainage</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="issueDescription">Description</label>
+                    <textarea id="issueDescription" rows="4" required maxlength="2000"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="issueDistrict">District</label>
+                    <input type="text" id="issueDistrict" required>
+                </div>
+                <div class="form-group">
+                    <label for="issueState">State</label>
+                    <input type="text" id="issueState" required>
+                </div>
+                <div class="form-group">
+                    <label for="issueAddress">Address</label>
+                    <input type="text" id="issueAddress" required>
+                </div>
+                <div class="form-group">
+                    <label>Location (Click on map or use current location)</label>
+                    <button type="button" class="btn btn-secondary" id="getCurrentLocation">Use My Location</button>
+                    <div id="miniMap" class="mini-map"></div>
+                    <input type="hidden" id="issueLat" required>
+                    <input type="hidden" id="issueLng" required>
+                </div>
+                <div class="form-group">
+                    <label for="issueImages">Upload Images (optional)</label>
+                    <input type="file" id="issueImages" accept="image/*" multiple>
+                    <small>You can upload up to 5 images (max 5MB each)</small>
+                    <div id="imagePreview" style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;"></div>
+                </div>
+                <div id="createIssueError" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-block">Submit Issue</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content share-modal-content">
+            <div class="modal-header">
+                <h2>Share Issue</h2>
+                <span class="close-modal" id="closeShareModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="share-preview-container">
+                    <div class="share-preview-card">
+                        <div class="preview-brand">
+                            <div class="brand-info">
+                                <h4>JanAwaaz</h4>
+                                <p>Civic issue shared by citizens</p>
+                            </div>
+                            <div class="preview-megaphone">📢</div>
+                        </div>
+                        <h3 id="previewTitle">Issue Title</h3>
+                        <div class="preview-tags">
+                            <div class="preview-tag category">
+                                <span id="previewCategoryIcon">💧</span>
+                                <span id="previewCategory">WATER</span>
+                            </div>
+                            <div class="preview-tag upvotes">
+                                <span>👍</span>
+                                <span id="previewUpvotes">0</span> Upvote
+                            </div>
+                            <div class="preview-tag reporter">
+                                <span>👤</span>
+                                <span>1 Reporter</span>
+                            </div>
+                        </div>
+                        <p class="preview-description" id="previewDescription">Description text goes here...</p>
+                        <div class="preview-location-box">
+                            <div class="loc-name">
+                                📍 <span id="previewLocation">Mumbai</span>
+                            </div>
+                            <div class="loc-tagline">
+                                Raise issues. Build pressure. Drive action.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="share-link-section">
+                    <label>Direct Link</label>
+                    <div class="copy-link-wrapper">
+                        <input type="text" id="shareLinkInput" readonly>
+                        <button id="copyLinkBtn" class="btn-copy">Copy</button>
+                    </div>
+                </div>
+
+                <div class="social-grid">
+                    <button class="social-item twitter" data-platform="twitter">
+                        <span class="social-icon">𝕏</span>
+                        <span>Twitter</span>
+                    </button>
+                    <button class="social-item whatsapp" data-platform="whatsapp">
+                        <span class="social-icon">📱</span>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button class="social-item facebook" data-platform="facebook">
+                        <span class="social-icon">f</span>
+                        <span>Facebook</span>
+                    </button>
+                    <button class="social-item linkedin" data-platform="linkedin">
+                        <span class="social-icon">in</span>
+                        <span>LinkedIn</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/supercluster@8.0.1/dist/supercluster.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/verification.js"></script>
+    <script src="/js/realtime.js"></script>
+    <script src="/js/map.js"></script>
+    <script src="/js/feed.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>

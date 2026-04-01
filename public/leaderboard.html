@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Authority Leaderboard - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/leaderboard.css">
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" class="active" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-post-btn" id="reportBtnWrap">
+                <a href="/district" class="btn btn-primary">+ Report Issue</a>
+            </div>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>        </aside>
+
+        <!-- Main Content -->
+        <main class="feed-center leaderboard-page">
+            <div class="feed-header">
+                <h1>🏆 Authority Leaderboard</h1>
+                <p>Top-performing authorities ranked by their contributions</p>
+            </div>
+
+            <!-- Sort Controls -->
+            <div class="leaderboard-controls">
+                <div class="sort-options">
+                    <label>Sort by:</label>
+                    <button class="sort-btn active" data-sort="resolved">Most Resolved</button>
+                    <button class="sort-btn" data-sort="rating">Highest Rated</button>
+                    <button class="sort-btn" data-sort="speed">Fastest Resolution</button>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loadingIndicator">Loading leaderboard...</div>
+
+            <!-- Leaderboard Content -->
+            <div id="leaderboardContent" style="display: none;">
+                <!-- Top 3 Podium -->
+                <div class="podium" id="podium">
+                    <!-- Top 3 will be rendered here -->
+                </div>
+
+                <!-- Leaderboard Table -->
+                <div class="leaderboard-table-container">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Authority</th>
+                                <th>Department</th>
+                                <th>Jurisdiction</th>
+                                <th>Issues Resolved</th>
+                                <th>Avg. Rating</th>
+                                <th>Avg. Resolution Time</th>
+                                <th>Badge</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            <!-- Leaderboard rows will be rendered here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <h3>No authorities found</h3>
+                    <p>The leaderboard will be populated as authorities resolve issues.</p>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-state" style="display: none;">
+                <h3>Error loading leaderboard</h3>
+                <p id="errorMessage"></p>
+                <button class="btn btn-primary" onclick="location.reload()">Retry</button>
+            </div>
+        </main>
+
+        <!-- Right Sidebar (optional - can add stats here) -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                <h3>📊 Leaderboard Stats</h3>
+                <div id="quickStats" style="padding: 16px 0; font-size: 0.875rem; color: var(--text-secondary);">
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-weight: 700; font-size: 1.5rem; color: var(--text-primary); margin-bottom: 4px;" id="totalAuthorities">-</div>
+                        <div style="color: var(--text-secondary);">Active Authorities</div>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-weight: 700; font-size: 1.5rem; color: var(--text-primary); margin-bottom: 4px;" id="totalResolved">-</div>
+                        <div style="color: var(--text-secondary);">Total Issues Resolved</div>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-weight: 700; font-size: 1.5rem; color: var(--text-primary); margin-bottom: 4px;" id="avgRating">-</div>
+                        <div style="color: var(--text-secondary);">Average Rating</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-widget" style="margin-top: 16px;">
+                <h3>🏆 Top Performer</h3>
+                <div id="topPerformer" style="padding: 16px 0; font-size: 0.875rem; color: var(--text-secondary);">
+                    Leading the way in resolving citizen issues efficiently
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        // Simple leaderboard JavaScript
+        let currentSort = 'resolved';
+
+        // Load leaderboard on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await updateNavigation();
+            await loadLeaderboard();
+            setupSortButtons();
+        });
+
+        // Setup sort button listeners
+        function setupSortButtons() {
+            const sortButtons = document.querySelectorAll('.sort-btn');
+            sortButtons.forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    // Update active state
+                    sortButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Update sort and reload
+                    currentSort = btn.dataset.sort;
+                    await loadLeaderboard();
+                });
+            });
+        }
+
+        // Load leaderboard data
+        async function loadLeaderboard() {
+            try {
+                document.getElementById('loadingIndicator').style.display = 'block';
+                document.getElementById('leaderboardContent').style.display = 'none';
+                document.getElementById('errorState').style.display = 'none';
+
+                const response = await fetch(`/api/leaderboard?sortBy=${currentSort}&limit=100`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch leaderboard');
+                }
+
+                const data = await response.json();
+                renderLeaderboard(data.leaderboard);
+
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('leaderboardContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('errorState').style.display = 'block';
+                document.getElementById('errorMessage').textContent = error.message;
+            }
+        }
+
+        // Render leaderboard
+        function renderLeaderboard(leaderboard) {
+            if (!leaderboard || leaderboard.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('podium').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+
+            // Render top 3 podium
+            renderPodium(leaderboard.slice(0, 3));
+
+            // Render table rows
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+
+            leaderboard.forEach(authority => {
+                const row = createLeaderboardRow(authority);
+                tbody.appendChild(row);
+            });
+
+            // Update sidebar stats
+            updateSidebarStats(leaderboard);
+        }
+
+        // Update sidebar statistics
+        function updateSidebarStats(leaderboard) {
+            const totalResolved = leaderboard.reduce((sum, auth) => sum + auth.metrics.issuesResolved, 0);
+            const totalRatings = leaderboard.reduce((sum, auth) => sum + parseFloat(auth.metrics.averageRating || 0), 0);
+            const avgRating = leaderboard.length > 0 ? (totalRatings / leaderboard.length).toFixed(1) : '0.0';
+
+            document.getElementById('totalAuthorities').textContent = leaderboard.length;
+            document.getElementById('totalResolved').textContent = totalResolved.toLocaleString();
+            document.getElementById('avgRating').textContent = avgRating + ' ⭐';
+        }
+
+        // Render podium for top 3
+        function renderPodium(top3) {
+            const podium = document.getElementById('podium');
+            podium.innerHTML = '';
+            podium.style.display = 'flex';
+
+            if (top3.length === 1) {
+                // Only one authority — show as rank 1 centre
+                podium.appendChild(createPodiumItem(top3[0], 1));
+                return;
+            }
+
+            // Reorder for visual podium: 2nd, 1st, 3rd
+            // Preserve original rank alongside each entry
+            const tagged = top3.map((a, i) => ({ authority: a, rank: i + 1 }));
+            const ordered = [tagged[1], tagged[0], tagged[2]].filter(Boolean);
+
+            ordered.forEach(({ authority, rank }) => {
+                const podiumItem = createPodiumItem(authority, rank);
+                podium.appendChild(podiumItem);
+            });
+        }
+
+        // Create podium item
+        function createPodiumItem(authority, rank) {
+            const item = document.createElement('div');
+            item.className = `podium-item rank-${rank}`;
+            
+            const medal = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : '🥉');
+            const height = rank === 1 ? '200px' : (rank === 2 ? '160px' : '120px');
+            
+            item.style.height = height;
+            
+            item.innerHTML = `
+                <div class="podium-medal">${medal}</div>
+                <div class="podium-avatar">
+                    ${authority.avatar ? `<img src="${authority.avatar}" alt="${authority.name}">` : '<div class="avatar-placeholder">👤</div>'}
+                </div>
+                <div class="podium-name">${authority.name}</div>
+                <div class="podium-stats">
+                    <div class="stat">
+                        <strong>${authority.metrics.issuesResolved}</strong>
+                        <span>Resolved</span>
+                    </div>
+                    <div class="stat">
+                        <strong>${(parseFloat(authority.metrics.averageRating) || 0).toFixed(1)}⭐</strong>
+                        <span>Rating</span>
+                    </div>
+                </div>
+                <div class="podium-badge">${getBadgeEmoji(authority.badge)}</div>
+            `;
+            
+            return item;
+        }
+
+        // Create leaderboard row
+        function createLeaderboardRow(authority) {
+            const row = document.createElement('tr');
+            
+            const rankClass = authority.rank <= 3 ? `rank-${authority.rank}` : '';
+            row.className = rankClass;
+            
+            row.innerHTML = `
+                <td class="rank-cell">
+                    <span class="rank-number">#${authority.rank}</span>
+                    ${authority.rank <= 3 ? `<div style="font-size: 1.5rem; margin-top: 4px;">${getRankMedal(authority.rank)}</div>` : ''}
+                </td>
+                <td class="authority-cell">
+                    <div class="authority-info">
+                        ${authority.avatar ? `<img src="${authority.avatar}" alt="${authority.name}" class="authority-avatar">` : '<div class="authority-avatar-placeholder">👤</div>'}
+                        <div>
+                            <div class="authority-name">${authority.name}</div>
+                            <div class="authority-designation">${authority.designation || 'Authority Officer'}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${authority.department || 'Government Department'}</td>
+                <td>${authority.jurisdiction.district || authority.jurisdiction.state || 'Regional'}</td>
+                <td class="stat-cell">${authority.metrics.issuesResolved}</td>
+                <td class="stat-cell">
+                    ${(parseFloat(authority.metrics.averageRating) || 0).toFixed(1)} ⭐
+                    <div class="rating-count">(${authority.metrics.ratingCount} ratings)</div>
+                </td>
+                <td class="stat-cell">${authority.metrics.averageResolutionTime} days</td>
+                <td class="badge-cell">${getBadgeEmoji(authority.badge)} ${authority.badge.charAt(0).toUpperCase() + authority.badge.slice(1)}</td>
+            `;
+            
+            return row;
+        }
+
+        // Get rank medal
+        function getRankMedal(rank) {
+            const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+            return medals[rank] || '';
+        }
+
+        // Get badge emoji
+        function getBadgeEmoji(badge) {
+            const badges = {
+                'gold': '🏅',
+                'silver': '🥈',
+                'bronze': '🥉',
+                'none': ''
+            };
+            return badges[badge] || '';
+        }
+    </script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>

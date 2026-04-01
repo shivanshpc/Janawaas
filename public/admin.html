@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Admin Dashboard - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .admin-search-input {
+            padding: 8px 12px;
+            background: var(--admin-card);
+            border: 1px solid var(--admin-card-border);
+            border-radius: 6px;
+            color: var(--admin-text);
+            font-size: 0.875rem;
+            width: 180px;
+        }
+        .admin-search-input:focus {
+            outline: none;
+            border-color: var(--admin-teal);
+            background: var(--admin-bg-2);
+        }
+        .data-table a {
+            color: var(--admin-teal);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .data-table a:visited {
+            color: var(--admin-teal);
+        }
+        .data-table a:hover {
+            text-decoration: underline;
+            color: var(--admin-teal-strong);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--admin-bg-1);
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid var(--admin-card-border);
+            width: 500px;
+            border-radius: 12px;
+            position: relative;
+            color: var(--admin-text);
+        }
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            color: var(--admin-text-soft);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="feed-layout admin-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active" data-tab-target="home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="#" data-tab-target="users" title="Users">
+                    <span class="nav-icon">👥</span>
+                    <span>Users</span>
+                </a>
+                <a href="#" data-tab-target="issues" title="Issues">
+                    <span class="nav-icon">📋</span>
+                    <span>Issues</span>
+                </a>
+                <a href="#" data-tab-target="authorities" title="Authorities">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Authorities</span>
+                </a>
+                <a href="#" data-tab-target="moderation" title="Moderation">
+                    <span class="nav-icon">🛡️</span>
+                    <span>Moderation</span>
+                </a>
+                <a href="#" data-tab-target="flagged" title="Flagged Users">
+                    <span class="nav-icon">🚩</span>
+                    <span>Flagged Users</span>
+                </a>
+                <a href="#" data-tab-target="reports" title="Reports">
+                    <span class="nav-icon">📊</span>
+                    <span>Reports</span>
+                </a>
+                <a href="#" data-tab-target="announcements" title="Announcements">
+                    <span class="nav-icon">📣</span>
+                    <span>Announcements</span>
+                </a>
+                <a href="#" id="navLogout" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>⚙️ Admin Dashboard</h1>
+                <p>Manage users, issues, and platform settings</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3 id="totalUsers">0</h3>
+                        <p>Total Users</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-content">
+                        <h3 id="totalIssues">0</h3>
+                        <p>Total Issues</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-content">
+                        <h3 id="pendingIssues">0</h3>
+                        <p>Pending Issues</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3 id="resolvedIssues">0</h3>
+                        <p>Resolved Issues</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚫</div>
+                    <div class="stat-content">
+                        <h3 id="bannedUsers">0</h3>
+                        <p>Banned Users</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-content">
+                        <h3 id="unverifiedAuthorities">0</h3>
+                        <p>Unverified Authorities</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="home">Home</button>
+                <button class="tab-btn" data-tab="users">Users</button>
+                <button class="tab-btn" data-tab="issues">Issues</button>
+                <button class="tab-btn" data-tab="authorities">Authorities</button>
+                <button class="tab-btn" data-tab="moderation">Moderation</button>
+                <button class="tab-btn" data-tab="flagged">Flagged Users</button>
+                <button class="tab-btn" data-tab="reports">Reports</button>
+                <button class="tab-btn" data-tab="announcements">Announcements</button>
+            </div>
+
+            <div class="tab-content active" id="homeTab">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>Platform Health & Overview</h2>
+                    </div>
+                    <p class="section-subtitle">Use the sidebar to jump between management areas. This home view keeps all admin actions inside one dashboard.</p>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div class="tab-content" id="usersTab">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>User Management</h2>
+                        <div class="filters">
+                            <input type="text" id="userSearch" placeholder="Search name/email/user..." class="admin-search-input">
+                            <input type="text" id="userDistrictSearch" placeholder="Filter district..." class="admin-search-input">
+                            <select id="userRoleFilter">
+                                <option value="">All Roles</option>
+                                <option value="citizen">Citizen</option>
+                                <option value="authority">Authority</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                            <select id="userBannedFilter">
+                                <option value="">All Status</option>
+                                <option value="false">Active</option>
+                                <option value="true">Banned</option>
+                            </select>
+                            <button class="btn-primary" onclick="loadUsers(1)">🔍 Search</button>
+                        </div>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>District</th>
+                                    <th>Status</th>
+                                    <th>Verified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading">Loading users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="usersPagination"></div>
+                </div>
+            </div>
+
+            <!-- Issues Tab -->
+            <div class="tab-content" id="issuesTab">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>Issue Management</h2>
+                        <div class="filters">
+                            <input type="text" id="issueSearch" placeholder="Search title/desc..." class="admin-search-input">
+                            <input type="text" id="issueDistrictSearch" placeholder="Filter district..." class="admin-search-input">
+                            <select id="issueStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="accepted">Accepted</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="denied">Denied</option>
+                            </select>
+                            <select id="issueFeaturedFilter">
+                                <option value="">All Issues</option>
+                                <option value="true">Featured Only</option>
+                                <option value="false">Non-Featured</option>
+                            </select>
+                            <button class="btn-primary" onclick="loadIssues(1)">🔍 Search</button>
+                        </div>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Reporter</th>
+                                    <th>Status</th>
+                                    <th>Upvotes</th>
+                                    <th>Featured</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="issuesTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading">Loading issues...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="issuesPagination"></div>
+                </div>
+            </div>
+
+            <!-- Authorities Tab -->
+            <div class="tab-content" id="authoritiesTab">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>Authority Verification</h2>
+                        <div class="filters">
+                            <input type="text" id="authoritySearch" placeholder="Search name/email..." class="admin-search-input">
+                            <input type="text" id="authorityDistrictSearch" placeholder="Filter district..." class="admin-search-input">
+                            <select id="authorityVerifiedFilter">
+                                <option value="">All Authorities</option>
+                                <option value="false">Unverified</option>
+                                <option value="true">Verified</option>
+                            </select>
+                            <button class="btn-primary" onclick="loadAuthorities(1)">🔍 Search</button>
+                        </div>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>District</th>
+                                    <th>State</th>
+                                    <th>Verified</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="authoritiesTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading">Loading authorities...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="authoritiesPagination"></div>
+                </div>
+            </div>
+
+            <!-- Moderation Tab -->
+            <div class="tab-content" id="moderationTab">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>Content Moderation</h2>
+                        <p class="section-subtitle">Review and manage flagged issues</p>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Reporter</th>
+                                    <th>Flag Reason</th>
+                                    <th>District</th>
+                                    <th>Status</th>
+                                    <th>Flagged On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="moderationTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading">Loading flagged issues...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="moderationPagination"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="flaggedTab">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>Flagged Users</h2>
+                    </div>
+                    <p class="section-subtitle">Use the Moderation tab to review flagged content and ban offending users.</p>
+                </div>
+            </div>
+
+            <div class="tab-content" id="reportsTab">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>Reports & Flags</h2>
+                        <div class="filters">
+                            <input type="text" id="reportSearch" placeholder="Search reason/desc..." class="admin-search-input">
+                            <select id="reportStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="reviewed">Reviewed</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="dismissed">Dismissed</option>
+                            </select>
+                            <select id="reportTypeFilter">
+                                <option value="">All Types</option>
+                                <option value="issue">Issue</option>
+                                <option value="comment">Comment</option>
+                                <option value="user">User</option>
+                            </select>
+                            <button class="btn-primary" onclick="loadReports(1)">🔍 Search</button>
+                        </div>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Target</th>
+                                    <th>Type</th>
+                                    <th>Reporter</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading">Loading reports...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="reportsPagination"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="announcementsTab">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>Broadcast Announcements</h2>
+                        <button class="btn-primary" onclick="showAnnouncementModal()">+ Create New</button>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Target</th>
+                                    <th>Created By</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="announcementsTableBody">
+                                <tr>
+                                    <td colspan="6" class="loading">Loading announcements...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="announcementsPagination"></div>
+                </div>
+            </div>
+
+            <!-- Announcement Modal -->
+            <div id="announcementModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeAnnouncementModal()">&times;</span>
+                    <h2>Create New Announcement</h2>
+                    <form id="announcementForm">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="annTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Content</label>
+                            <textarea id="annContent" required rows="4"></textarea>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Type</label>
+                                <select id="annType">
+                                    <option value="info">Info</option>
+                                    <option value="warning">Warning</option>
+                                    <option value="urgent">Urgent</option>
+                                    <option value="success">Success</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Target Audience</label>
+                                <select id="annTarget">
+                                    <option value="all">All Users</option>
+                                    <option value="citizen">Citizens Only</option>
+                                    <option value="authority">Authorities Only</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Target State (Optional)</label>
+                                <input type="text" id="annState" placeholder="e.g. Maharashtra">
+                            </div>
+                            <div class="form-group">
+                                <label>Target District (Optional)</label>
+                                <input type="text" id="annDistrict" placeholder="e.g. Mumbai">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Post Announcement</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                <h3>Quick Stats</h3>
+                <div class="sidebar-widget-item">
+                    <div class="label">Total Users</div>
+                    <div class="value" id="sidebarTotalUsers">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Total Issues</div>
+                    <div class="value" id="sidebarTotalIssues">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Pending</div>
+                    <div class="value" id="sidebarPending">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Resolved</div>
+                    <div class="value" id="sidebarResolved">—</div>
+                </div>
+            </div>
+            <div class="sidebar-widget">
+                <h3>Admin Tools</h3>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                    <a href="/admin-authorities" style="display:block; padding: 8px 12px; background: var(--bg-light); border-radius: 8px; text-decoration: none; color: var(--text-primary); font-size: 0.875rem;">🏛️ Authority Apps</a>
+                    <a href="/analytics" style="display:block; padding: 8px 12px; background: var(--bg-light); border-radius: 8px; text-decoration: none; color: var(--text-primary); font-size: 0.875rem;">📊 Analytics</a>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/admin.js"></script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>
