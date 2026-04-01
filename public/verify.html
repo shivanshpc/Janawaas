@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Identity Verification - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+    <style>
+        .verification-step { display: none; }
+        .verification-step.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .verification-step.active { animation: fadeIn 0.25s ease; }
+        .verification-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .option-card {
+            padding: 20px 16px;
+            border: 2px solid var(--border-dark);
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .option-card:hover { border-color: var(--primary-color); background: var(--hover-bg); }
+        .option-card.selected { border-color: var(--primary-color); background: rgba(29,155,240,0.06); }
+        .option-card h3 { margin: 8px 0 4px; font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); }
+        .option-card p { font-size: 0.8125rem; color: var(--text-secondary); }
+        .aadhaar-input { font-family: monospace; letter-spacing: 2px; }
+        .file-upload-area {
+            border: 2px dashed var(--border-dark);
+            border-radius: 12px;
+            padding: 36px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+        }
+        .file-upload-area:hover, .file-upload-area.drag-over {
+            border-color: var(--primary-color);
+            background: rgba(29,155,240,0.04);
+        }
+        .otp-display {
+            background: rgba(29,155,240,0.08);
+            border: 1px solid rgba(29,155,240,0.2);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 16px 0;
+            color: var(--primary-color);
+        }
+        .otp-code { font-size: 1.75rem; font-weight: 800; font-family: monospace; letter-spacing: 4px; }
+        .masked-aadhaar { font-family: monospace; }
+        .verified-badge {
+            display: inline-block;
+            background: var(--success-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .v-alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        .v-alert-info  { background: rgba(29,155,240,0.08); color: var(--primary-color); border-left: 3px solid var(--primary-color); }
+        .v-alert-success { background: rgba(0,186,124,0.08); color: var(--success-color); border-left: 3px solid var(--success-color); }
+        .v-alert-error { background: rgba(244,33,46,0.08); color: var(--danger-color); border-left: 3px solid var(--danger-color); }
+        .status-pending  { color: var(--warning-color); font-weight: 600; }
+        .status-approved { color: var(--success-color); font-weight: 600; }
+        .status-rejected { color: var(--danger-color);  font-weight: 600; }
+        .hidden { display: none; }
+        .verify-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 10px;
+        }
+        .verify-btn:hover { background: var(--primary-dark); }
+        .verify-btn:disabled { background: var(--border-dark); cursor: not-allowed; }
+        .verify-btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: var(--text-primary);
+            border: 1.5px solid var(--border-dark);
+            border-radius: 9999px;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .verify-btn-secondary:hover { background: var(--hover-bg); }
+    </style>
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile" style="display:none;">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" class="active" style="color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center: Verification Steps -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>📝 Identity Verification</h1>
+                <p>Verify your identity to unlock full participation</p>
+            </div>
+
+            <div style="padding: 24px;">
+                <div id="alertContainer"></div>
+
+                <!-- Step 0: Choose Verification Method -->
+                <div id="step0" class="verification-step active">
+                    <h2 style="font-size:1.125rem; font-weight:800; margin-bottom:6px; color:var(--text-primary);">Choose Verification Method</h2>
+                    <p style="font-size:0.875rem; color:var(--text-secondary); margin-bottom:20px;">Select how you'd like to verify your identity.</p>
+                    <div class="verification-options">
+                        <div class="option-card" onclick="selectVerificationMethod('aadhaar')">
+                            <div style="font-size:2rem;">📲</div>
+                            <h3>Aadhaar OTP</h3>
+                            <p>Quick verification via Aadhaar-linked mobile OTP</p>
+                        </div>
+                        <div class="option-card" onclick="selectVerificationMethod('document')">
+                            <div style="font-size:2rem;">📁</div>
+                            <h3>Document Upload</h3>
+                            <p>Upload Voter ID, PAN, or other govt ID</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Aadhaar Number Entry -->
+                <div id="step1" class="verification-step">
+                    <h2 style="font-size:1.125rem; font-weight:800; margin-bottom:16px; color:var(--text-primary);">Enter Aadhaar Number</h2>
+                    <div class="v-alert v-alert-info">
+                        <strong>Privacy First:</strong> Your Aadhaar number will be hashed with SHA256. Only the hash is stored, never the original number.
+                    </div>
+                    <form id="aadhaarForm">
+                        <div class="form-group">
+                            <label for="aadhaarNumber">Aadhaar Number (12 digits)</label>
+                            <input
+                                type="text"
+                                id="aadhaarNumber"
+                                class="aadhaar-input"
+                                placeholder="XXXX XXXX XXXX"
+                                maxlength="12"
+                                pattern="[0-9]{12}"
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="verify-btn">Send OTP</button>
+                        <button type="button" class="verify-btn-secondary" onclick="goBack()">Back</button>
+                    </form>
+                </div>
+
+                <!-- Step 2: OTP Verification -->
+                <div id="step2" class="verification-step">
+                    <h2 style="font-size:1.125rem; font-weight:800; margin-bottom:16px; color:var(--text-primary);">Enter OTP</h2>
+                    <div class="v-alert v-alert-info">
+                        OTP sent to Aadhaar-linked mobile: <span class="masked-aadhaar" id="maskedAadhaar"></span>
+                    </div>
+                    <div class="otp-display">
+                        <div style="font-size:0.8125rem; color:var(--text-secondary); margin-bottom:8px;">Enter the code below to complete verification:</div>
+                        <div class="otp-code" id="demoOtp">------</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:8px;">(Tip: For testing, you can also use 123456)</div>
+                    </div>
+                    <form id="otpForm">
+                        <div class="form-group">
+                            <label for="otp">Enter 6-digit OTP</label>
+                            <input
+                                type="text"
+                                id="otp"
+                                class="aadhaar-input"
+                                placeholder="XXXXXX"
+                                maxlength="6"
+                                pattern="[0-9]{6}"
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="verify-btn">Verify OTP</button>
+                        <button type="button" class="verify-btn-secondary" onclick="goBack()">Back</button>
+                    </form>
+                </div>
+
+                <!-- Step 3: Document Upload -->
+                <div id="step3" class="verification-step">
+                    <h2 style="font-size:1.125rem; font-weight:800; margin-bottom:16px; color:var(--text-primary);">Upload Identity Document</h2>
+                    <div class="v-alert v-alert-info">
+                        Upload a clear photo of your government-issued ID. Our admin team will review and approve within 24 hours.
+                    </div>
+                    <form id="documentForm">
+                        <div class="form-group">
+                            <label for="documentType">Document Type</label>
+                            <select id="documentType" required>
+                                <option value="">Select document type</option>
+                                <option value="voter_id">Voter ID</option>
+                                <option value="pan_card">PAN Card</option>
+                                <option value="driving_license">Driving License</option>
+                                <option value="other">Other Government ID</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Upload Document</label>
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <div style="font-size:2rem; margin-bottom:8px;">📁</div>
+                                <p style="font-weight:600; margin-bottom:4px;">Click or drag file here</p>
+                                <p style="font-size:0.8125rem; color:var(--text-secondary);">Max 5MB, JPG/PNG only</p>
+                            </div>
+                            <input type="file" id="documentFile" class="hidden" accept="image/*" required>
+                            <div id="filePreview" class="hidden" style="margin-top:14px;">
+                                <img id="previewImage" style="max-width:100%; border-radius:10px; border:1px solid var(--border-color);">
+                            </div>
+                        </div>
+                        <button type="submit" class="verify-btn">Submit for Review</button>
+                        <button type="button" class="verify-btn-secondary" onclick="goBack()">Back</button>
+                    </form>
+                </div>
+
+                <!-- Step 4: Success -->
+                <div id="step4" class="verification-step">
+                    <div class="v-alert v-alert-success" style="padding:20px;">
+                        <div style="font-size:2rem; margin-bottom:8px;">&#x2705;</div>
+                        <h2 style="font-size:1.125rem; font-weight:800; margin-bottom:6px;">Verification Successful!</h2>
+                        <p>Your identity has been verified. You now have full access to all JanAwaaz features.</p>
+                    </div>
+                    <button class="verify-btn" onclick="window.location.href='/district'">Go to District Feed</button>
+                </div>
+
+                <!-- Step 5: Pending Approval -->
+                <div id="step5" class="verification-step">
+                    <div class="v-alert v-alert-info" style="padding:20px;">
+                        <div style="font-size:2rem; margin-bottom:8px;">&#x23F3;</div>
+                        <h2 style="font-size:1.125rem; font-weight:800; margin-bottom:6px;">Pending Admin Review</h2>
+                        <p>Your document has been submitted and is awaiting admin approval. You'll be notified once reviewed.</p>
+                    </div>
+                    <button class="verify-btn" onclick="window.location.href='/profile'">Go to Profile</button>
+                </div>
+
+                <!-- Verification Status Display -->
+                <div id="statusDisplay" class="verification-step">
+                    <h2 style="font-size:1.125rem; font-weight:800; margin-bottom:16px; color:var(--text-primary);">Verification Status</h2>
+                    <div id="statusContent"></div>
+                    <button class="verify-btn-secondary" onclick="location.reload()" style="margin-top:12px;">Refresh Status</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                <h3>📝 Why Verify?</h3>
+                <div style="display:flex; flex-direction:column; gap:12px; margin-top:4px;">
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <span style="color:var(--success-color); font-weight:800; font-size:1rem; flex-shrink:0;">&#x2713;</span>
+                        <div>
+                            <div style="font-weight:600; font-size:0.875rem; color:var(--text-primary); margin-bottom:2px;">Verified Badge</div>
+                            <div style="font-size:0.8125rem; color:var(--text-secondary);">Get a blue checkmark shown on all your reports and comments</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <span style="color:var(--success-color); font-weight:800; font-size:1rem; flex-shrink:0;">&#x2713;</span>
+                        <div>
+                            <div style="font-weight:600; font-size:0.875rem; color:var(--text-primary); margin-bottom:2px;">More Credibility</div>
+                            <div style="font-size:0.8125rem; color:var(--text-secondary);">Authorities take verified reports more seriously</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <span style="color:var(--success-color); font-weight:800; font-size:1rem; flex-shrink:0;">&#x2713;</span>
+                        <div>
+                            <div style="font-weight:600; font-size:0.875rem; color:var(--text-primary); margin-bottom:2px;">Prevent Spam</div>
+                            <div style="font-size:0.8125rem; color:var(--text-secondary);">Keeps the platform trustworthy for everyone</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-widget">
+                <h3>🛡️ Your Privacy</h3>
+                <p style="font-size:0.8125rem; color:var(--text-secondary); line-height:1.6;">Your Aadhaar number is never stored. Only a one-way SHA256 hash is kept to confirm uniqueness. Uploaded documents are encrypted and accessible only by authorised admins.</p>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        let currentStep = 0;
+        let aadhaarHash = '';
+        let demoOtp = '';
+
+        // Check if user is already verified
+        window.addEventListener('load', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            updateNavigation();
+
+            try {
+                const response = await fetch('/api/verification/status', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.isAadhaarVerified || data.isVerified) {
+                        showStep(4);
+                    } else if (data.documentVerifications && data.documentVerifications.length > 0) {
+                        displayVerificationStatus(data);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking verification status:', error);
+            }
+        });
+
+        function showStep(step) {
+            document.querySelectorAll('.verification-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            currentStep = step;
+        }
+
+        function selectVerificationMethod(method) {
+            if (method === 'aadhaar') {
+                showStep(1);
+            } else {
+                showStep(3);
+            }
+        }
+
+        function goBack() {
+            if (currentStep === 1 || currentStep === 3) {
+                showStep(0);
+            } else if (currentStep === 2) {
+                showStep(1);
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `<div class="v-alert v-alert-${type}">${message}</div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 5000);
+        }
+
+        // Aadhaar form submission
+        document.getElementById('aadhaarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const aadhaarNumber = document.getElementById('aadhaarNumber').value;
+
+            if (!/^\d{12}$/.test(aadhaarNumber)) {
+                showAlert('Please enter a valid 12-digit Aadhaar number', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/verification/verify-aadhaar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ aadhaarNumber })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    aadhaarHash = data.aadhaarHash;
+                    document.getElementById('maskedAadhaar').textContent = data.maskedAadhaar;
+                    demoOtp = data.otp; // Use OTP from server
+                    document.getElementById('demoOtp').textContent = demoOtp;
+                    showStep(2);
+                } else {
+                    showAlert(data.error || 'Failed to send OTP', 'error');
+                }
+            } catch (error) {
+                showAlert('Error connecting to server', 'error');
+                console.error(error);
+            }
+        });
+
+        // OTP form submission
+        document.getElementById('otpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('otp').value;
+
+            if (!/^\d{6}$/.test(otp)) {
+                showAlert('Please enter a valid 6-digit OTP', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/verification/confirm-aadhaar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ aadhaarHash, otp })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStep(4);
+                } else {
+                    showAlert(data.error || 'Invalid OTP', 'error');
+                }
+            } catch (error) {
+                showAlert('Error connecting to server', 'error');
+                console.error(error);
+            }
+        });
+
+        // File upload handling
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('documentFile');
+        const filePreview = document.getElementById('filePreview');
+        const previewImage = document.getElementById('previewImage');
+
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('drag-over');
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('drag-over');
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) handleFileSelect(files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFileSelect(e.target.files[0]);
+        });
+
+        function handleFileSelect(file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('File size must be less than 5MB', 'error');
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                showAlert('Only image files are allowed', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                filePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Document form submission
+        document.getElementById('documentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const documentType = document.getElementById('documentType').value;
+            const file = fileInput.files[0];
+
+            if (!documentType || !file) {
+                showAlert('Please select document type and upload a file', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('documentType', documentType);
+            formData.append('document', file);
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/verification/upload-document', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStep(5);
+                } else {
+                    showAlert(data.error || 'Failed to upload document', 'error');
+                }
+            } catch (error) {
+                showAlert('Error connecting to server', 'error');
+                console.error(error);
+            }
+        });
+
+        function displayVerificationStatus(data) {
+            const statusContent = document.getElementById('statusContent');
+            let html = '';
+
+            if (data.isAadhaarVerified) {
+                html += `<div class="v-alert v-alert-success">&#x2705; Aadhaar Verified</div>`;
+            }
+
+            if (data.documentVerifications && data.documentVerifications.length > 0) {
+                html += '<h3 style="font-size:0.9375rem; font-weight:700; margin-bottom:10px; color:var(--text-primary);">Document Verifications</h3>';
+                data.documentVerifications.forEach(verification => {
+                    const statusClass = `status-${verification.status}`;
+                    html += `
+                        <div class="v-alert v-alert-info" style="margin-bottom:10px;">
+                            <p style="margin-bottom:4px;"><strong>Document:</strong> ${verification.documentType.replace('_', ' ').toUpperCase()}</p>
+                            <p style="margin-bottom:4px;"><strong>Status:</strong> <span class="${statusClass}">${verification.status.toUpperCase()}</span></p>
+                            <p style="margin-bottom:0;"><strong>Submitted:</strong> ${new Date(verification.createdAt).toLocaleString()}</p>
+                            ${verification.reviewNote ? `<p style="margin-top:4px; margin-bottom:0;"><strong>Note:</strong> ${verification.reviewNote}</p>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            statusContent.innerHTML = html;
+            showStep('statusDisplay');
+        }
+</script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>

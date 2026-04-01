@@ -1,0 +1,219 @@
+/* Notification Styles */
+
+.notification-btn {
+    position: relative;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.notification-icon {
+    font-size: 1.5rem;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
+}
+
+.notification-dropdown {
+    position: fixed;
+    width: 380px;
+    max-height: 560px;
+    background-color: var(--bg-white);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    overflow: hidden;
+    z-index: 1000;
+    border: 1px solid var(--border-color);
+}
+
+/* Tabs at the top of the page (All / Priority / Mentions) */
+.notifications-tabs {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.notifications-tabs .tab {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* fallback: style .tab even when not inside .notifications-tabs */
+.tab {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+.notifications-tabs .tab:hover {
+    background: var(--hover-bg);
+}
+.notifications-tabs .tab.active {
+    background: var(--bg-white);
+    border-color: rgba(29,155,240,0.12);
+    box-shadow: var(--shadow);
+    color: var(--primary-color);
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.notification-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: var(--bg-light);
+}
+
+.notification-item.unread {
+    /* subtle highlight for unread items; use variable so dark-mode can override */
+    background-color: var(--notification-unread-bg, rgba(239,246,255,0.24));
+}
+
+/* Stronger visual for unread items */
+.notification-item.unread .notification-title {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.notification-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, rgba(29,155,240,0.95), rgba(29,155,240,0.65));
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.notification-item .notification-icon {
+    font-size: 1.5rem;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.notification-message {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.unread-dot {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.no-notifications {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .notification-dropdown {
+        width: calc(100vw - 40px);
+        right: 20px !important;
+    }
+}
+
+/* Dark mode adjustments specifically for notifications */
+body.dark-mode .notification-dropdown {
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Use a darker unread background in dark mode for contrast */
+body.dark-mode {
+    --notification-unread-bg: rgba(29,155,240,0.10);
+}
+
+/* Improve list scrollbar visibility in dark mode */
+.notification-list::-webkit-scrollbar {
+    width: 10px;
+}
+.notification-list::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.12);
+    border-radius: 6px;
+}
+.notification-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.12) transparent;
+}

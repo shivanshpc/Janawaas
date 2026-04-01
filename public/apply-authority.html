@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Apply as Authority - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <style>
+        .authority-application-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .application-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .application-header h1 {
+            color: #ff6b35;
+            margin-bottom: 10px;
+        }
+
+        .application-header p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #666;
+        }
+
+        .info-box ul li {
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+
+        .file-upload-area:hover {
+            border-color: #ff6b35;
+            background: #fff5f2;
+        }
+
+        .file-upload-area.drag-over {
+            border-color: #ff6b35;
+            background: #fff5f2;
+        }
+
+        .file-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        .file-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-preview-icon {
+            font-size: 24px;
+        }
+
+        .file-preview-info {
+            flex: 1;
+        }
+
+        .file-preview-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .file-preview-size {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #ff6b35;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #ff5722;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #ff6b35;
+            border: 2px solid #ff6b35;
+        }
+
+        .btn-secondary:hover {
+            background: #fff5f2;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .status-view {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-approved {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-rejected {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/">
+                    <h1>JanAwaaz</h1>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/district">District</a>
+                <a href="/profile">Profile</a>
+                <a href="/" id="navLogout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="authority-application-container">
+        <div class="application-header">
+            <h1>🏛️ Apply as Authority</h1>
+            <p>Join JanAwaaz as a government authority to manage and resolve civic issues in your jurisdiction</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <!-- Application Status View -->
+        <div id="statusView" class="status-view hidden">
+            <h2>Your Application Status</h2>
+            <div id="statusContent"></div>
+            <button class="btn btn-secondary" onclick="window.location.href='/profile'" style="margin-top: 20px;">Back to Profile</button>
+        </div>
+
+        <!-- Application Form -->
+        <div id="applicationForm">
+            <div class="info-box">
+                <h3>Authority Benefits</h3>
+                <ul>
+                    <li><strong>Manage Issues:</strong> Accept and resolve civic issues in your jurisdiction</li>
+                    <li><strong>Build Trust:</strong> Get ratings and badges based on your performance</li>
+                    <li><strong>Make Impact:</strong> Directly help citizens and improve your community</li>
+                    <li><strong>Track Progress:</strong> Monitor your resolved issues and ratings</li>
+                </ul>
+            </div>
+
+            <form id="authorityApplicationForm">
+                <h3 style="margin-bottom: 20px; color: #333;">Personal Information</h3>
+                
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" required>
+                    <small>Your full name as per government records</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="designation">Designation *</label>
+                        <input type="text" id="designation" placeholder="e.g., Municipal Commissioner" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department">Department *</label>
+                        <input type="text" id="department" placeholder="e.g., Public Works Department" required>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: #333;">Jurisdiction</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="jurisdictionDistrict">District *</label>
+                        <input type="text" id="jurisdictionDistrict" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jurisdictionState">State *</label>
+                        <input type="text" id="jurisdictionState" required>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: #333;">Contact & Verification</h3>
+
+                <div class="form-group">
+                    <label for="officialEmail">Official Email *</label>
+                    <input type="email" id="officialEmail" placeholder="yourname@gov.in" required>
+                    <small>Official government email address</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="governmentIdNumber">Government ID Number *</label>
+                    <input type="text" id="governmentIdNumber" required>
+                    <small>Employee ID or official government identification number</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Appointment Letter / ID Document *</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <p style="font-size: 40px; margin-bottom: 10px;">📄</p>
+                        <p style="font-weight: 600; margin-bottom: 5px;">Click or drag file here</p>
+                        <p style="font-size: 14px; color: #666;">
+                            PDF, JPG, PNG (Max 10MB)
+                        </p>
+                    </div>
+                    <input type="file" id="appointmentLetter" class="hidden" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <div id="filePreview" class="hidden file-preview"></div>
+                    <small>Upload your appointment letter or official government ID</small>
+                </div>
+
+                <div class="form-group" style="margin-top: 30px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="termsCheckbox" required>
+                        <span>I confirm that all information provided is accurate and I am authorized to act as a government authority</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Submit Application
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/authority-application.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>

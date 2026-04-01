@@ -1,0 +1,345 @@
+﻿/* ============================================
+   Profile Page - Twitter/X Style
+   ============================================ */
+
+.profile-page {
+    min-height: 100vh;
+}
+
+/* Cover Photo */
+.profile-cover {
+    height: 200px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%);
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Profile Header Card */
+.profile-header {
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 16px 16px;
+    position: relative;
+    min-height: 120px;
+}
+
+/* Avatar overlapping header */
+.profile-avatar {
+    position: absolute;
+    top: -70px;
+    left: 16px;
+}
+
+.avatar-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    font-weight: 800;
+    border: 5px solid var(--bg-white);
+    box-shadow: var(--shadow);
+}
+
+/* Name / handle row */
+.profile-info {
+    padding-top: 80px;
+}
+
+.profile-info h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.username-display {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    margin: 2px 0 8px;
+}
+
+.profile-info p {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    margin: 2px 0;
+}
+
+.profile-badges {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 4px 12px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.verification-badge {
+    background: rgba(29, 155, 240, 0.1);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Verification alert */
+#verificationAlert {
+    margin: 16px 0 0;
+}
+
+#verificationAlert > div {
+    padding: 16px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    color: #92400e;
+}
+
+#verificationAlert strong {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+#verificationAlert p {
+    color: #92400e;
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+#verificationAlert a {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 20px;
+    background: #ff6b35;
+    color: white;
+    text-decoration: none;
+    border-radius: 9999px;
+    font-weight: 700;
+    transition: background-color 0.2s;
+}
+
+#verificationAlert a:hover {
+    background: #e55a2a;
+}
+
+/* Stats Row - Twitter inline style */
+.profile-stats {
+    display: flex;
+    gap: 24px;
+    padding: 16px;
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.stat-card:hover { 
+    transform: none; 
+    box-shadow: none;
+    opacity: 0.8;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: block;
+    line-height: 1.2;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 2px;
+}
+
+/* Profile Content Area */
+.profile-section {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.profile-section h2 { display: none; }
+
+/* Tabs - Twitter underline style */
+.profile-tabs {
+    display: flex;
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(12px);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 16px 0;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    color: var(--text-primary);
+    font-weight: 700;
+    border-bottom-color: var(--primary-color);
+}
+
+.tab-content { 
+    min-height: 300px;
+    background: transparent;
+    width: 100%;
+    display: block !important;
+}
+
+.tab-pane { 
+    display: none; 
+    background: transparent;
+}
+
+.tab-pane.active { 
+    display: block !important; 
+    min-height: 200px;
+    background: transparent;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Issues list inside profile */
+.issues-feed {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    background: transparent !important;
+}
+
+.issues-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.issues-list .issue-card,
+.issues-feed .issue-card {
+    display: block !important;
+    background: var(--bg-white) !important;
+    color: var(--text-primary) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.activity-list .issue-card {
+    display: block;
+}
+
+.no-issues {
+    padding: 80px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+.issue-author-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.issue-author-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .profile-cover {
+        height: 150px;
+    }
+    
+    .profile-stats {
+        gap: 16px;
+        padding: 12px;
+    }
+    
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        font-size: 2.25rem;
+        border-width: 4px;
+    }
+    
+    .profile-info { 
+        padding-top: 60px; 
+    }
+    
+    .profile-info h1 {
+        font-size: 1.25rem;
+    }
+    
+    .profile-avatar { 
+        top: -50px;
+        left: 12px;
+    }
+    
+    .stat-value {
+        font-size: 1.125rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8125rem;
+    }
+    
+    .profile-header {
+        padding: 0 12px 12px;
+    }
+}

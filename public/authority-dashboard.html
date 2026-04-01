@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Authority Dashboard - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+    <style>
+        .authority-dashboard {
+            padding: 20px;
+        }
+        .district-group {
+            margin-bottom: 40px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        .district-header {
+            padding: 16px 20px;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .district-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+        }
+        .status-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .status-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .status-column-header {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .status-count {
+            background: var(--bg-light);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .issue-item {
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .issue-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .issue-item.selected {
+            border-color: var(--primary-color);
+            background: rgba(var(--primary-rgb), 0.05);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        .merge-checkbox-container {
+            padding-top: 4px;
+        }
+        .merge-checkbox-container input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+        .issue-item-title {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        .issue-item-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+        .empty-column {
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 0.875rem;
+            padding: 10px;
+            text-align: center;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+        }
+        
+        .merged-issues-list {
+            padding: 10px;
+        }
+        
+        .merged-issues-list .issue-item {
+            border-left: 4px solid #6366f1;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <!-- India and District links will be hidden via auth.js -->
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authority-dashboard" id="navIssues" class="active" title="Issues Dashboard">
+                    <span class="nav-icon">📋</span>
+                    <span>Issues</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div>
+                        <h1>📋 Issues Dashboard</h1>
+                        <p>Track and manage issues across all districts</p>
+                    </div>
+                    <div id="mergeActions" style="display: none; gap: 10px;">
+                        <button id="cancelMergeBtn" class="btn btn-secondary">Cancel</button>
+                        <button id="confirmMergeBtn" class="btn btn-primary">Confirm Merge</button>
+                    </div>
+                    <button id="enableMergeModeBtn" class="btn btn-primary">Merge Issues</button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="profile-tabs" style="margin: 0 20px 20px 20px; border-bottom: 1px solid var(--border-color);">
+                <button class="tab-btn active" data-tab="issues">Issues Dashboard</button>
+                <button class="tab-btn" data-tab="complaints">Filed Complaints</button>
+                <button class="tab-btn" data-tab="merged">Merged Requests</button>
+            </div>
+
+            <div id="tab-issues" class="tab-pane active">
+                <div id="dashboardContent" class="authority-dashboard">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <div id="tab-complaints" class="tab-pane" style="padding: 20px;">
+                <div id="complaintsDashboardContent" class="complaints-dashboard">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <div id="tab-merged" class="tab-pane" style="padding: 20px;">
+                <div id="mergedIssuesContent" class="merged-dashboard">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                <h3>Dashboard Stats</h3>
+                <div class="sidebar-widget-item">
+                    <div class="label">Total Issues</div>
+                    <div class="value" id="statTotal">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Pending</div>
+                    <div class="value" id="statPending">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">In Progress</div>
+                    <div class="value" id="statInProgress">—</div>
+                </div>
+                <div class="sidebar-widget-item">
+                    <div class="label">Resolved</div>
+                    <div class="value" id="statResolved">—</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/authority-dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>India Feed - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" class="active" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-post-btn" id="reportBtnWrap">
+                <a href="/district" class="btn btn-primary">+ Report Issue</a>
+            </div>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1><img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="india-flag india-flag-img" alt="India Flag"> India Feed</h1>
+                <p>Trending issues across the nation</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="feed-tabs">
+                <button class="feed-tab-btn active" data-filter="hot">🔥 Hot</button>
+                <button class="feed-tab-btn" data-filter="trending">📈 Trending</button>
+                <button class="feed-tab-btn" data-filter="new">🆕 New</button>
+                <button class="feed-tab-btn" data-filter="top">⭐ Top</button>
+            </div>
+
+            <!-- Feed description -->
+            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-white);">
+                <p id="feedDescription" style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">
+                    Showing hottest issues based on upvotes and recency
+                </p>
+            </div>
+
+            <!-- Issues Feed -->
+            <div id="issuesFeed" class="issues-feed">
+                <div class="loading">Loading issues...</div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                <h3><img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="india-flag india-flag-img" alt="India Flag"> India at a Glance</h3>
+                <div class="sidebar-widget-text-fallback" style="display:none;">
+                    <div class="sidebar-widget-item">
+                        <div class="label">Issues Nationwide</div>
+                        <div class="value" id="statNational">—</div>
+                    </div>
+                    <div class="sidebar-widget-item">
+                        <div class="label">Resolved This Month</div>
+                        <div class="value" id="statMonthly">—</div>
+                    </div>
+                </div>
+                <div style="padding:8px 0; height:220px;">
+                    <canvas class="stats-chart-canvas" aria-label="India stats chart"></canvas>
+                </div>
+            </div>
+            <div class="sidebar-widget">
+                <h3>Top Categories</h3>
+                <div class="categories-grid" style="margin-top: 8px;">
+                    <span class="category-tag">🛣️ Roads</span>
+                    <span class="category-tag">🗑️ Garbage</span>
+                    <span class="category-tag">💧 Water</span>
+                    <span class="category-tag">⚡ Electricity</span>
+                    <span class="category-tag">💡 Streetlight</span>
+                    <span class="category-tag">🌊 Drainage</span>
+                </div>
+            </div>
+            <div class="sidebar-widget">
+                <h3>Got an issue?</h3>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 12px;">
+                    Report local issues in your district to get them resolved faster.
+                </p>
+                <a href="/district" class="btn btn-primary" style="width: 100%; text-align: center; display: block;">Go to District Feed</a>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/feed.js"></script>
+    <script src="/js/india.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Login - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile" style="display:none;">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" class="active" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center: Auth Forms -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>JanAwaaz</h1>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div id="loginError" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+                <p style="text-align:center; margin-top:16px; font-size:0.875rem; color:var(--text-secondary);">Don't have an account? <a href="#" onclick="document.querySelector('[data-tab=register]').click(); return false;" style="color:var(--primary-color); font-weight:600;">Register</a></p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" style="display: none;">
+                <h2>Join JanAwaaz</h2>
+                <div class="form-group">
+                    <label for="registerDisplayName">Full Name</label>
+                    <input type="text" id="registerDisplayName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerUsername">Username</label>
+                    <input type="text" id="registerUsername" required placeholder="Choose a unique username">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" minlength="6" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerState">State</label>
+                    <select id="registerState" required>
+                        <option value="">Select State</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="registerDistrict">District</label>
+                    <select id="registerDistrict" required>
+                        <option value="">Select District</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="registerPincode">Pincode</label>
+                    <input type="text" id="registerPincode" required placeholder="Enter your 6-digit pincode" maxlength="6" pattern="[0-9]{6}">
+                </div>
+                <div class="form-group">
+                    <label for="registerRole">I am a</label>
+                    <select id="registerRole" required>
+                        <option value="citizen">Citizen</option>
+                        <option value="authority">Local Authority</option>
+                    </select>
+                </div>
+                <div id="registerError" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                <p style="text-align:center; margin-top:16px; font-size:0.875rem; color:var(--text-secondary);">Already have an account? <a href="#" onclick="document.querySelector('[data-tab=login]').click(); return false;" style="color:var(--primary-color); font-weight:600;">Login</a></p>
+            </form>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="sidebar-widget">
+                    <h3>JanAwaaz</h3>
+                <p style="font-size:0.875rem; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">India's civic voice platform. Report local issues, upvote what matters, and hold authorities accountable.</p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; align-items:flex-start; gap:10px; font-size:0.875rem; color:var(--text-secondary);">
+                        <span style="font-size:1rem; flex-shrink:0;">📝</span>
+                        <span>Report roads, water, electricity and more civic issues</span>
+                    </div>
+                    <div style="display:flex; align-items:flex-start; gap:10px; font-size:0.875rem; color:var(--text-secondary);">
+                        <span style="font-size:1rem; flex-shrink:0;">👍</span>
+                        <span>Upvote issues to push them to the top</span>
+                    </div>
+                    <div style="display:flex; align-items:flex-start; gap:10px; font-size:0.875rem; color:var(--text-secondary);">
+                        <span style="font-size:1rem; flex-shrink:0;">🏛️</span>
+                        <span>Authorities respond and resolve on-platform</span>
+                    </div>
+                    <div style="display:flex; align-items:flex-start; gap:10px; font-size:0.875rem; color:var(--text-secondary);">
+                        <span style="font-size:1rem; flex-shrink:0;">🏅</span>
+                        <span>Earn badges and climb the leaderboard</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-widget">
+                <h3>🛡️ Safe &amp; Trusted</h3>
+                <p style="font-size:0.875rem; color:var(--text-secondary); line-height:1.6;">Verify your identity with Aadhaar after signing up to get a verified badge and unlock full participation.</p>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/stateDistrictMapping.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        // Initialize state and district dropdowns
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavigation();
+            populateStates();
+            setupStateChangeListener();
+            
+            // Handle #register hash
+            if (window.location.hash === '#register') {
+                const regTab = document.querySelector('[data-tab="register"]');
+                if (regTab) regTab.click();
+            }
+        });
+
+        // Populate state dropdown with all states
+        function populateStates() {
+            const stateSelect = document.getElementById('registerState');
+            if (!stateSelect) return;
+            
+            const states = getStates();
+            states.forEach(state => {
+                const option = document.createElement('option');
+                option.value = state;
+                option.textContent = state;
+                stateSelect.appendChild(option);
+            });
+        }
+
+        // Setup listener for state change
+        function setupStateChangeListener() {
+            const stateSelect = document.getElementById('registerState');
+            const districtSelect = document.getElementById('registerDistrict');
+            
+            if (!stateSelect || !districtSelect) return;
+            
+            stateSelect.addEventListener('change', (e) => {
+                const selectedState = e.target.value;
+                
+                // Clear districts
+                districtSelect.innerHTML = '<option value="">Select District</option>';
+                
+                if (selectedState) {
+                    const districts = getDistrictsForState(selectedState);
+                    districts.forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district;
+                        option.textContent = district;
+                        districtSelect.appendChild(option);
+                    });
+                }
+            });
+        }
+    </script>
+    <script src="/js/statsChart.js"></script>
+</body>
+</html>

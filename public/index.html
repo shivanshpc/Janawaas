@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>JanAwaaz - Voice of the People</title>
+    <meta name="description" content="JanAwaaz is a civic reporting platform where citizens can report and track local issues in their district. Voice your concerns, upvote issues, and connect with authorities.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://janawaaz.org">
+    <meta property="og:title" content="JanAwaaz - Voice of the People">
+    <meta property="og:description" content="Report local issues, track progress, and build a better community together.">
+    <meta property="og:image" content="https://placehold.co/1200x630/orange/white?text=JanAwaaz">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://janawaaz.org">
+    <meta property="twitter:title" content="JanAwaaz - Voice of the People">
+    <meta property="twitter:description" content="Report local issues, track progress, and build a better community together.">
+    <meta property="twitter:image" content="https://placehold.co/1200x630/orange/white?text=JanAwaaz">
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <nav class="sidebar-nav">
+                <a href="/home" class="active" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-post-btn" id="reportBtnWrap" style="display:none;">
+                <a href="/district" class="btn btn-primary">+ Report Issue</a>
+            </div>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>JanAwaaz</h1>
+            </div>
+
+            <!-- Authority Specific Feed -->
+            <div id="authorityHomeContent" style="display: none; padding: 0 20px;">
+                <!-- Drafts Section -->
+                <div id="draftsSection" style="display: none; padding: 24px 0 16px;">
+                    <h2 style="font-size: 0.875rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">DRAFTS</h2>
+                    <div id="draftsFeed" class="drafts-feed" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Draft cards will be injected here -->
+                    </div>
+                </div>
+
+                <div style="padding: 24px 0 16px; border-bottom: 1px solid var(--border-color);">
+                    <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">Resolved Success Stories 🏆</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.9375rem;">Check out how authorities are making a difference across India.</p>
+                </div>
+                <div id="resolvedIssuesFeed" class="issues-feed">
+                    <div style="padding: 40px; text-align: center; color: var(--text-secondary);">
+                        <div style="font-size: 2rem; margin-bottom: 12px;">⌛</div>
+                        <div>Loading success stories...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome / About Card -->
+            <div id="welcomeCards" style="display: none;">
+                <div style="padding: 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-white);">
+                <h2 style="font-size: 1.375rem; font-weight: 800; margin-bottom: 6px; color: var(--text-primary);">Your Voice, Your City 🗣️</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.6; margin-bottom: 16px;">JanAwaaz empowers citizens to report, track and resolve local infrastructure issues: roads, water, electricity, garbage and more.</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="background: var(--bg-light); border-radius: 12px; padding: 14px;">
+                        <div style="font-size: 1.25rem; margin-bottom: 4px;">📝</div>
+                        <div style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary);">Report Issues</div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">Post problems in your area with photos &amp; location</div>
+                    </div>
+                    <div style="background: var(--bg-light); border-radius: 12px; padding: 14px;">
+                        <div style="font-size: 1.25rem; margin-bottom: 4px;">👍</div>
+                        <div style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary);">Upvote &amp; Support</div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">Back issues that matter, higher votes get more attention</div>
+                    </div>
+                    <div style="background: var(--bg-light); border-radius: 12px; padding: 14px;">
+                        <div style="font-size: 1.25rem; margin-bottom: 4px;">🏛️</div>
+                        <div style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary);">Authority Response</div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">Local authorities accept and resolve issues on‑platform</div>
+                    </div>
+                    <div style="background: var(--bg-light); border-radius: 12px; padding: 14px;">
+                        <div style="font-size: 1.25rem; margin-bottom: 4px;">📊</div>
+                        <div style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary);">Track Progress</div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">Follow every issue from pending to resolved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How it Works -->
+            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-white);">
+                <h2 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 18px; color: var(--text-primary);">How it Works</h2>
+                <div style="display: flex; flex-direction: column; gap: 0;">
+                    <div style="display: flex; gap: 16px; align-items: flex-start; padding-bottom: 20px; position: relative;">
+                        <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">1</div>
+                            <div style="width: 2px; flex: 1; background: var(--border-color); margin-top: 6px; min-height: 28px;"></div>
+                        </div>
+                        <div style="padding-top: 6px;">
+                            <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-primary); margin-bottom: 3px;">Create an Account</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;">Sign up and verify your identity with Aadhaar to build trust in your reports and unlock full participation.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 16px; align-items: flex-start; padding-bottom: 20px; position: relative;">
+                        <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">2</div>
+                            <div style="width: 2px; flex: 1; background: var(--border-color); margin-top: 6px; min-height: 28px;"></div>
+                        </div>
+                        <div style="padding-top: 6px;">
+                            <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-primary); margin-bottom: 3px;">Report a Problem</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;">Spot a broken road, waterlogging, power outage or any civic issue? Post it with a photo, description and your location in seconds.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 16px; align-items: flex-start; padding-bottom: 20px; position: relative;">
+                        <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">3</div>
+                            <div style="width: 2px; flex: 1; background: var(--border-color); margin-top: 6px; min-height: 28px;"></div>
+                        </div>
+                        <div style="padding-top: 6px;">
+                            <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-primary); margin-bottom: 3px;">Community Upvotes</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;">Neighbours upvote issues they care about. High-upvote issues surface to the top and get prioritised by local authorities.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 16px; align-items: flex-start; padding-bottom: 20px; position: relative;">
+                        <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">4</div>
+                            <div style="width: 2px; flex: 1; background: var(--border-color); margin-top: 6px; min-height: 28px;"></div>
+                        </div>
+                        <div style="padding-top: 6px;">
+                            <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-primary); margin-bottom: 3px;">Authority Action</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;">Verified local government officials and municipal bodies review, accept and post updates directly on the platform.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--success-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">5</div>
+                        </div>
+                        <div style="padding-top: 6px;">
+                            <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-primary); margin-bottom: 3px;">Issue Resolved</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;">Once fixed, the issue is marked resolved. Citizens can confirm and rate the resolution. Earn badges for your contributions.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Why JanAwaaz -->
+            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-white);">
+                <h2 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 6px; color: var(--text-primary);">Why JanAwaaz?</h2>
+                <p style="font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">India's civic problems are visible to everyone but acted on by few. JanAwaaz bridges the gap between citizens and local government by creating a transparent, accountable, and data-driven platform for civic action.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: flex-start; gap: 14px; background: var(--bg-light); border-radius: 12px; padding: 14px;">
+                        <span style="font-size: 1.375rem; flex-shrink: 0;">🔍</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 2px;">Full Transparency</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">Every issue, update and resolution is publicly visible. No more issues disappearing into a complaint box with no follow-up.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 14px; background: var(--bg-light); border-radius: 12px; padding: 14px;">
+                        <span style="font-size: 1.375rem; flex-shrink: 0;">🛡️</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 2px;">Aadhaar-Verified Trust</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">Optional Aadhaar verification prevents spam and fake reports, ensuring authorities receive credible, actionable complaints.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 14px; background: var(--bg-light); border-radius: 12px; padding: 14px;">
+                        <span style="font-size: 1.375rem; flex-shrink: 0;">📍</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 2px;">Hyperlocal &amp; Nationwide</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">Browse issues by your district, or zoom out to see patterns across all of India on the national map view.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 14px; background: var(--bg-light); border-radius: 12px; padding: 14px;">
+                        <span style="font-size: 1.375rem; flex-shrink: 0;">🏅</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 2px;">Gamified Civic Engagement</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">Earn points and badges for reporting, verifying and following up on issues. Top contributors are recognised on the leaderboard.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories section -->
+            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-white);">
+                <h2 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 6px; color: var(--text-primary);">What Can You Report?</h2>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 16px;">JanAwaaz covers a wide range of civic and infrastructure categories.</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-light); border-radius: 10px; padding: 12px;">
+                        <span style="font-size: 1.25rem;">🛣️</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);">Roads &amp; Potholes</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Damaged roads, potholes, unsafe crossings</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-light); border-radius: 10px; padding: 12px;">
+                        <span style="font-size: 1.25rem;">💧</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);">Water Supply</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">No water, leaks, contamination</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-light); border-radius: 10px; padding: 12px;">
+                        <span style="font-size: 1.25rem;">💡</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);">Electricity</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Power cuts, broken lines, meter issues</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-light); border-radius: 10px; padding: 12px;">
+                        <span style="font-size: 1.25rem;">🗑️</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);">Garbage &amp; Waste</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Uncollected waste, illegal dumping</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-light); border-radius: 10px; padding: 12px;">
+                        <span style="font-size: 1.25rem;">🔦</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);">Streetlights</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Non-functioning lights, unsafe areas</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-light); border-radius: 10px; padding: 12px;">
+                        <span style="font-size: 1.25rem;">🌊</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);">Drainage</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Blocked drains, waterlogging, sewage</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-light); border-radius: 10px; padding: 12px;">
+                        <span style="font-size: 1.25rem;">🌳</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);">Parks &amp; Public Spaces</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Damaged parks, encroachments</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-light); border-radius: 10px; padding: 12px;">
+                        <span style="font-size: 1.25rem;">📌</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--text-primary);">Other Issues</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Any other civic problem in your area</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For Authorities section -->
+            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-white);">
+                <h2 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 6px; color: var(--text-primary);">For Government Authorities</h2>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">Local government officials, municipal corporations and public works departments can apply for an authority account to manage issues in their jurisdiction.</p>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem; color: var(--text-secondary);">
+                        <span style="color: var(--success-color); font-weight: 800; font-size: 1rem;">✓</span>
+                        <span>View and filter all issues in your district by category, severity or date</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem; color: var(--text-secondary);">
+                        <span style="color: var(--success-color); font-weight: 800; font-size: 1rem;">✓</span>
+                        <span>Accept issues, post progress updates and mark them resolved</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem; color: var(--text-secondary);">
+                        <span style="color: var(--success-color); font-weight: 800; font-size: 1rem;">✓</span>
+                        <span>Receive automatic deadline reminders to keep resolutions on track</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem; color: var(--text-secondary);">
+                        <span style="color: var(--success-color); font-weight: 800; font-size: 1rem;">✓</span>
+                        <span>Build public trust through visible, rated performance records</span>
+                    </div>
+                </div>
+                <a href="/apply-authority" style="display: inline-block; background: var(--bg-light); color: var(--primary-color); border: 1.5px solid var(--primary-color); padding: 10px 20px; border-radius: 9999px; font-weight: 700; font-size: 0.875rem; text-decoration: none;">Apply as an Authority</a>
+            </div>
+            </div> <!-- end welcomeCards -->
+
+            <!-- Hero Banner for logged-out users -->
+            <div id="heroBanner" style="display:none;">
+                <div style="background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%); padding: 32px 24px; margin-bottom: 0; color: white;">
+                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">Your Voice, Your City 🗣️</h2>
+                    <p style="opacity: 0.9; margin-bottom: 20px; font-size: 0.9375rem;">Report, track and resolve local infrastructure issues together.</p>
+                    <div style="display: flex; gap: 12px;">
+                        <a href="/login" style="background: white; color: var(--primary-color); padding: 10px 22px; border-radius: 9999px; font-weight: 700; text-decoration: none; font-size: 0.9375rem;">Get Started</a>
+                        <a href="/district" style="background: transparent; color: white; padding: 10px 22px; border-radius: 9999px; font-weight: 700; text-decoration: none; font-size: 0.9375rem; border: 2px solid white;">Browse Issues</a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <!-- Login CTA for logged-out users -->
+            <div id="loginCTA" class="sidebar-widget" style="display:none;">
+                <h3>Join JanAwaaz</h3>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 16px;">Report issues, upvote, and help build better communities.</p>
+                <a href="/login" class="btn btn-primary" style="width: 100%; text-align: center; display: block; margin-bottom: 8px;">Sign In</a>
+                <a href="/login#register" class="btn btn-secondary" style="width: 100%; text-align: center; display: block;">Create Account</a>
+            </div>
+
+            <!-- National Stats (chart) -->
+            <div class="sidebar-widget">
+                <h3>🇮🇳 India at a Glance</h3>
+                <div class="stats-chart" style="height:220px; padding: 8px 0;">
+                    <canvas id="statsChart" aria-label="India stats chart"></canvas>
+                </div>
+                <!-- textual fallback (kept for accessibility / older pages) -->
+                <div class="sidebar-widget-text-fallback" style="display:none;">
+                    <div class="sidebar-widget-item">
+                        <div class="label">Total Issues</div>
+                        <div class="value" id="statTotal">0</div>
+                    </div>
+                    <div class="sidebar-widget-item">
+                        <div class="label">Resolved</div>
+                        <div class="value" id="statResolved">0</div>
+                    </div>
+                    <div class="sidebar-widget-item">
+                        <div class="label">In Progress</div>
+                        <div class="value" id="statInProgress">0</div>
+                    </div>
+                    <div class="sidebar-widget-item">
+                        <div class="label">Pending</div>
+                        <div class="value" id="statPending">0</div>
+                    </div>
+                    <div class="sidebar-widget-item">
+                        <div class="label">Resolution Rate</div>
+                        <div class="value" id="statCitizens">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="sidebar-widget">
+                <h3>📋 Browse by Category</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0;">
+                    <a href="/district?category=roads" class="category-tag-link">🛣️ Roads</a>
+                    <a href="/district?category=garbage" class="category-tag-link">🗑️ Garbage</a>
+                    <a href="/district?category=electricity" class="category-tag-link">💡 Electricity</a>
+                    <a href="/district?category=water" class="category-tag-link">💧 Water</a>
+                    <a href="/district?category=streetlight" class="category-tag-link">🔦 Streetlights</a>
+                    <a href="/district?category=drainage" class="category-tag-link">🌊 Drainage</a>
+                </div>
+            </div>
+
+            <!-- Leaderboard Teaser -->
+            <div class="sidebar-widget">
+                <h3>🏆 Top Contributors</h3>
+                <div id="topContributors">
+                    <div style="color: var(--text-secondary); font-size: 0.875rem; padding: 8px 0;">Loading...</div>
+                </div>
+                <a href="/leaderboard" style="display: block; margin-top: 12px; color: var(--primary-color); font-size: 0.875rem; text-decoration: none;">View full leaderboard →</a>
+            </div>
+        </aside>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/realtime.js"></script>
+    <script>
+        // API_URL is defined globally in config.js
+        let currentUser = null;
+
+        async function initHome() {
+            // Canonicalize URL to /home
+            if (window.location.pathname === '/' || window.location.pathname === '') {
+                window.history.replaceState(null, '', '/home');
+            }
+
+            currentUser = await checkAuth();
+            await updateNavigation();
+
+            const welcomeCards = document.getElementById('welcomeCards');
+            const authorityHomeContent = document.getElementById('authorityHomeContent');
+            const reportBtnWrap = document.getElementById('reportBtnWrap');
+            const heroBanner = document.getElementById('heroBanner');
+            const loginCTA = document.getElementById('loginCTA');
+
+            if (currentUser) {
+                if (reportBtnWrap) reportBtnWrap.style.display = 'block';
+                
+                if (currentUser.role === 'authority') {
+                    if (welcomeCards) welcomeCards.style.display = 'none';
+                    if (authorityHomeContent) authorityHomeContent.style.display = 'block';
+                    loadDrafts();
+                    loadResolvedIssues();
+                } else {
+                    if (welcomeCards) welcomeCards.style.display = 'block';
+                    if (authorityHomeContent) authorityHomeContent.style.display = 'none';
+                }
+            } else {
+                if (heroBanner) heroBanner.style.display = 'block';
+                if (loginCTA) loginCTA.style.display = 'block';
+                if (welcomeCards) welcomeCards.style.display = 'block';
+                if (authorityHomeContent) authorityHomeContent.style.display = 'none';
+            }
+
+            loadStats();
+            loadTopContributors();
+        }
+
+        async function loadDrafts() {
+            const draftsSection = document.getElementById('draftsSection');
+            const draftsFeed = document.getElementById('draftsFeed');
+            if (!draftsSection || !draftsFeed || !currentUser || !currentUser.authorityDetails) return;
+
+            try {
+                const authorityId = currentUser.authorityDetails._id;
+                const token = getToken();
+                // Fetch issues assigned to this authority
+                const res = await fetch(`${API_URL}/issues?assignedTo=${authorityId}&status=resolved&limit=10`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!res.ok) throw new Error('Failed to fetch assigned issues');
+                
+                const data = await res.json();
+                const issues = data.issues || [];
+                
+                // Filter for issues that have draftRemarks (awaiting publication)
+                const draftIssues = issues.filter(issue => issue.draftRemarks && issue.draftRemarks.trim() !== "");
+                
+                if (draftIssues.length === 0) {
+                    draftsSection.style.display = 'none';
+                    return;
+                }
+                
+                draftsSection.style.display = 'block';
+                draftsFeed.innerHTML = draftIssues.map(issue => `
+                    <div class="draft-card" style="background: var(--bg-white); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: var(--shadow);">
+                        <h3 style="font-size: 1rem; font-weight: 700; color: #1d9bf0; margin-bottom: 2px;">${issue.title}</h3>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 12px;">${issue.district} · ${issue.category}</div>
+                        
+                        <div id="draftRemarksContainer-${issue._id}">
+                            <div style="display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; color: var(--text-primary); font-size: 0.875rem; margin-bottom: 16px;">
+                                <span style="color: #00ba7c; font-weight: 700;">✅</span>
+                                <p style="margin: 0; color: var(--text-primary); opacity: 0.9;">${issue.draftRemarks}</p>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                                <div style="font-size: 0.8125rem; color: var(--text-secondary);">
+                                    By Authority · ${new Date(issue.updatedAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\//g, '/').replace(',', '')}
+                                </div>
+                                <button onclick="toggleDraftEdit('${issue._id}')" class="btn btn-primary" style="font-size: 0.8125rem; padding: 8px 18px; border-radius: 9999px; display: flex; align-items: center; gap: 6px; border: none; font-weight: 700;">
+                                    ✏️ Edit and Publish
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Inline Edit View (Hidden by default) -->
+                        <div id="draftEditContainer-${issue._id}" style="display: none; margin-top: 8px;">
+                            <textarea id="draftText-${issue._id}" style="width: 100%; min-height: 80px; padding: 12px; border-radius: 8px; border: 1px solid var(--primary-color); background: var(--bg-white); color: var(--text-primary); font-size: 0.875rem; margin-bottom: 12px; resize: vertical;">${issue.draftRemarks}</textarea>
+                            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                                <button onclick="toggleDraftEdit('${issue._id}')" class="btn btn-secondary" style="font-size: 0.8125rem; padding: 6px 16px; border-radius: 9999px;">Cancel</button>
+                                <button onclick="publishDraftInline('${issue._id}')" id="publishBtn-${issue._id}" class="btn btn-primary" style="font-size: 0.8125rem; padding: 6px 20px; border-radius: 9999px; font-weight: 700;">Publish Success Story</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading drafts:', error);
+                draftsSection.style.display = 'none';
+            }
+        }
+
+        // Inline Draft Editing Functions
+        window.toggleDraftEdit = function(issueId) {
+            const container = document.getElementById(`draftRemarksContainer-${issueId}`);
+            const editContainer = document.getElementById(`draftEditContainer-${issueId}`);
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                editContainer.style.display = 'none';
+            } else {
+                container.style.display = 'none';
+                editContainer.style.display = 'block';
+            }
+        };
+
+        window.publishDraftInline = async function(issueId) {
+            const draftText = document.getElementById(`draftText-${issueId}`).value.trim();
+            const publishBtn = document.getElementById(`publishBtn-${issueId}`);
+            
+            if (!draftText) {
+                alert('Please enter some text before publishing.');
+                return;
+            }
+
+            publishBtn.disabled = true;
+            publishBtn.textContent = 'Publishing...';
+
+            try {
+                // First save the updated remarks
+                const saveRes = await fetch(`${API_URL}/issues/${issueId}/draft-remarks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ draftRemarks: draftText })
+                });
+
+                if (!saveRes.ok) throw new Error('Failed to save draft updates');
+
+                // Then publish it
+                const publishRes = await fetch(`${API_URL}/issues/${issueId}/publish-remarks`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+
+                if (!publishRes.ok) throw new Error('Failed to publish success story');
+
+                alert('Success story published successfully!');
+                loadDrafts(); // Refresh drafts section
+                loadResolvedIssues(); // Refresh feed
+            } catch (error) {
+                console.error('Error publishing inline:', error);
+                alert(error.message || 'Failed to publish success story');
+            } finally {
+                publishBtn.disabled = false;
+                publishBtn.textContent = 'Publish Success Story';
+            }
+        };
+
+        async function loadResolvedIssues() {
+            const feed = document.getElementById('resolvedIssuesFeed');
+            try {
+                const res = await fetch(`${API_URL}/issues?status=resolved&limit=10`);
+                if (!res.ok) throw new Error('Failed to fetch resolved issues');
+                
+                const data = await res.json();
+                const issues = data.issues || [];
+                
+                if (issues.length === 0) {
+                    feed.innerHTML = `
+                        <div style="padding: 40px; text-align: center; color: var(--text-secondary);">
+                            <div style="font-size: 2rem; margin-bottom: 12px;">🌱</div>
+                            <div>No resolved issues to show yet. Be the first to make a change!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                feed.innerHTML = issues.map(issue => `
+                    <div class="issue-card" onclick="window.location.href='/issue.html?id=${issue._id}'" style="cursor: pointer; margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: var(--bg-white);">
+                        ${issue.images && issue.images.length > 0 ? `
+                            <div style="height: 200px; overflow: hidden;">
+                                <img src="${issue.images[0].url}" alt="${issue.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        ` : ''}
+                        <div style="padding: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                <span style="background: rgba(0, 186, 124, 0.1); color: #00ba7c; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">RESOLVED</span>
+                                <span style="color: var(--text-secondary); font-size: 0.75rem;">${issue.resolvedAt ? new Date(issue.resolvedAt).toLocaleDateString() : (issue.updatedAt ? new Date(issue.updatedAt).toLocaleDateString() : 'Recently')}</span>
+                            </div>
+                            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 6px; color: var(--text-primary);">${issue.title}</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${issue.description}</p>
+                            
+                            ${issue.publishedRemarks ? `
+                                <div style="background: var(--bg-light); border-left: 4px solid var(--success-color); padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+                                    <div style="font-weight: 700; font-size: 0.8125rem; color: var(--success-color); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                        <span>🏛️ Authority Update</span>
+                                    </div>
+                                    <p style="font-size: 0.875rem; color: var(--text-primary); margin: 0; line-height: 1.5;">${issue.publishedRemarks}</p>
+                                </div>
+                            ` : ''}
+
+                            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; color: var(--text-secondary);">
+                                <span style="font-weight: 600;">By: ${issue.assignedAuthority?.name || 'Local Authority'}</span>
+                                <span>•</span>
+                                <span>${issue.district}, ${issue.state}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading resolved issues:', error);
+                feed.innerHTML = '<div style="padding: 20px; color: var(--error-color);">Failed to load resolved issues. Please try again later.</div>';
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_URL}/stats/overview`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const s = data.overview;
+                if (s.totalIssues !== undefined) document.getElementById('statTotal').textContent = s.totalIssues.toLocaleString();
+                if (s.resolvedIssues !== undefined) document.getElementById('statResolved').textContent = s.resolvedIssues.toLocaleString();
+                if (s.inProgressIssues !== undefined) document.getElementById('statInProgress').textContent = s.inProgressIssues.toLocaleString();
+                if (s.pendingIssues !== undefined) document.getElementById('statPending').textContent = s.pendingIssues.toLocaleString();
+                if (s.resolutionRate !== undefined) document.getElementById('statCitizens').textContent = s.resolutionRate + '%';
+                // update the chart visualization
+                try { updateStatsChart(s); } catch (e) { /* ignore chart errors */ }
+            } catch (e) { /* silent */ }
+        }
+
+        // Chart handling for the India stats widget
+        let statsChart = null;
+        function updateStatsChart(s) {
+            const canvas = document.getElementById('statsChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+            const ctx = canvas.getContext('2d');
+            const values = [s.resolvedIssues || 0, s.inProgressIssues || 0, s.pendingIssues || 0];
+            const labels = ['Resolved','In Progress','Pending'];
+            const colors = ['#00ba7c','#ffad1f','#536471'];
+            if (!statsChart) {
+                statsChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+                        cutout: '60%'
+                    }
+                });
+            } else {
+                statsChart.data.datasets[0].data = values;
+                statsChart.update();
+            }
+        }
+
+        async function loadTopContributors() {
+            try {
+                const res = await fetch(`${API_URL}/leaderboard?limit=5`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const users = data.leaderboard || [];
+                const container = document.getElementById('topContributors');
+                if (!users.length) { container.innerHTML = '<div style="color:var(--text-secondary); font-size:0.875rem; padding:8px 0;">No data yet.</div>'; return; }
+                container.innerHTML = users.slice(0, 5).map((u, i) => {
+                    const name = u.name || u.userId?.displayName || 'Authority';
+                    const username = u.username || u.userId?.username || '';
+                    return `
+                    <a href="${username ? `/profile/${username}` : '/leaderboard'}" style="display:flex; align-items:center; gap:10px; padding:8px 0; text-decoration:none; color:inherit; border-bottom: 1px solid var(--border-color);">
+                        <span style="font-weight:700; color:var(--text-secondary); width:18px; font-size:0.8125rem;">${i + 1}</span>
+                        <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--primary-color), #7c3aed); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.875rem; flex-shrink:0;">${name.charAt(0).toUpperCase()}</div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-weight:600; font-size:0.875rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+                            <div style="color:var(--text-secondary); font-size:0.75rem;">${u.department || u.designation || ''} · ${u.resolvedCount || 0} resolved</div>
+                        </div>
+                    </a>`;
+                }).join('');
+            } catch (e) { /* silent */ }
+        }
+
+        document.addEventListener('DOMContentLoaded', initHome);
+    </script>
+    <style>
+        .category-tag-link {
+            display: inline-block;
+            padding: 5px 12px;
+            background: rgba(29, 155, 240, 0.08);
+            color: var(--primary-color);
+            border-radius: 9999px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .category-tag-link:hover {
+            background: rgba(29, 155, 240, 0.18);
+        }
+    </style>
+</body>
+</html>
+

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');</script>
+    <title>Issue Details - JanAwaaz</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/issues.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Modern Sharing Card Styles matching screenshot */
+        .share-card-outer {
+            position: fixed;
+            left: -9999px;
+            top: -9999px;
+            width: 1080px; /* Instagram Story Width */
+            height: 1920px; /* Instagram Story Height */
+            background: linear-gradient(135deg, #a5c9f3 0%, #f3a5c9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+        .share-card-container {
+            width: 900px;
+            background: white;
+            padding: 60px;
+            border-radius: 48px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #000;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+        }
+        .share-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+        .share-card-brand-group h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin: 0;
+            color: #000;
+        }
+        .share-card-brand-group p {
+            font-size: 24px;
+            color: #666;
+            margin: 4px 0 0 0;
+        }
+        .share-card-icon {
+            font-size: 60px;
+        }
+        .share-card-title {
+            font-size: 64px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 40px;
+            color: #000;
+            letter-spacing: -0.03em;
+        }
+        .share-card-tags {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .card-tag {
+            padding: 12px 28px;
+            border-radius: 100px;
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+        }
+        .tag-category { background: #e0f2fe; color: #0369a1; }
+        .tag-upvotes { background: #f3e8ff; color: #7e22ce; }
+        .tag-reporter { background: #dcfce7; color: #15803d; }
+
+        .share-card-description {
+            font-size: 32px;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 60px;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .share-card-action-box {
+            background: #f3f4f6;
+            border-radius: 32px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 2px solid #e5e7eb;
+        }
+        .action-box-location {
+            font-weight: 700;
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .action-box-tagline {
+            font-size: 28px;
+            color: #4b5563;
+            margin-bottom: 32px;
+        }
+        .action-box-link-row {
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 20px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .link-text {
+            font-size: 24px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .copy-btn-mock {
+            background: #6b7280;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .share-card-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .share-card-footer-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .share-card-qr-small {
+            text-align: right;
+        }
+        .share-card-qr-small img {
+            width: 140px;
+            height: 140px;
+            border: 2px solid #eee;
+            border-radius: 16px;
+            background: white;
+            padding: 8px;
+        }
+
+        /* Search Result Styles */
+        .search-result-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        .search-result-item:hover {
+            background-color: var(--bg-light);
+        }
+        .search-results-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .search-results-list::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="feed-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="feed-sidebar-left">
+            <div class="sidebar-logo">
+                <a href="/"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/home" title="Home">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/india" id="navIndia" title="India Feed">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.9oc-FCMJoyYZtm2HJWnsKAHaE7?w=2000&h=1333&rs=1&pid=ImgDetMain&o=7&rm=3" class="nav-icon india-flag-img" alt="India Flag">
+                    <span>India</span>
+                </a>
+                <a href="/district" id="navFeed" title="District Feed">
+                    <span class="nav-icon">📍</span>
+                    <span>District</span>
+                </a>
+                <a href="/authorities" id="navAuthorities" style="display:none;" title="Search">
+                    <span class="nav-icon">🏛️</span>
+                    <span>Search</span>
+                </a>
+                <a href="/leaderboard" id="navLeaderboard" title="Leaderboard">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="/notifications" id="navNotifications" title="Notifications">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </a>
+                <a href="/profile" id="navProfile" title="Profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/verify" id="navVerify" style="display:none; color: #f59e0b;" title="Verify Aadhaar">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Verify</span>
+                </a>
+                <a href="/admin" id="adminLink" style="display:none;" title="Admin">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                <a href="/login" id="navLogin" style="display:none;" title="Login">
+                    <span class="nav-icon">🔑</span>
+                    <span>Login</span>
+                </a>
+                <a href="#" id="navLogout" style="display:none;" onclick="logout(); return false;" title="Logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="feed-center">
+            <div class="feed-header">
+                <h1>JanAwaaz</h1>
+            </div>
+
+            <!-- Top execution tracker dropdown (collapsed by default) -->
+            <div id="topExecutionTracker" class="top-execution-tracker collapsed">
+                <button id="topTrackerToggle" class="top-tracker-toggle" aria-expanded="false">
+                    <div class="top-tracker-left">
+                        <strong>Execution Progress</strong>
+                    </div>
+                    <div class="top-tracker-right">
+                        <span id="topTrackerPercent">0%</span>
+                        <span class="chev">▾</span>
+                    </div>
+                </button>
+
+                <div class="top-tracker-panel" id="topTrackerPanel" aria-hidden="true">
+                    <div class="status-timeline compact" id="topStatusTimeline">
+                        <div class="progress-tracker-header">
+                            <h3>Execution Progress</h3>
+                            <span id="trackerPercent">0%</span>
+                        </div>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" id="trackerBar" style="width: 0%;"></div>
+                        </div>
+                        <div id="trackerStages" class="tracker-stages"></div>
+
+                        <div class="stage-details-card">
+                            <h4>Stage Details</h4>
+                            <h5 id="currentStageTitle">No updates yet</h5>
+                            <p id="currentStageSummary">Authorities will post progress updates here after accepting this issue.</p>
+                            <ul id="stageUpdateImages" class="stage-update-images"></ul>
+                        </div>
+
+                        <div class="timeline-updates" id="timelineUpdates"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="loadingIndicator" style="padding: 40px 20px; text-align: center;">Loading issue...</div>
+
+            <div id="issueContent" style="display: none;">
+                <div class="issue-page">
+                    <div class="issue-grid">
+                        <div class="issue-main">
+                            <div id="collaborationBanner" style="display: none;"></div>
+                            <div class="issue-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+                                <div class="issue-category-badge" id="issueCategoryBadge"></div>
+                                <h1 id="issueTitle"></h1>
+                                <div class="issue-meta">
+                                    <span id="issueAuthor"></span>
+                                    <span id="issueDate"></span>
+                                    <span id="issueDistrict"></span>
+                                </div>
+                            </div>
+
+                            <!-- Status Badge -->
+                            <div class="status-badge" id="issueStatus" style="margin:16px 0;"></div>
+
+                            <!-- Images -->
+                            <div id="issueImages" class="issue-images"></div>
+
+                            <!-- Description -->
+                            <div class="issue-description">
+                                <h3>Description</h3>
+                                <p id="issueDescription"></p>
+                            </div>
+
+                            <!-- Citizen Updates Section -->
+                            <div id="citizenUpdatesSection" class="citizen-updates-section" style="display: none; margin-top: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                    <h3 style="margin: 0;">Citizen Updates</h3>
+                                    <button id="addCitizenUpdateBtn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 12px; display: none;">+ Add Update</button>
+                                </div>
+                                
+                                <!-- Update Form (hidden by default) -->
+                                <div id="citizenUpdateFormContainer" style="display: none; margin-bottom: 20px; padding: 16px; background: var(--bg-light); border-radius: 12px; border: 1px solid var(--border-color);">
+                                    <form id="citizenUpdateForm">
+                                        <div class="form-group">
+                                            <textarea id="citizenUpdateContent" placeholder="Share an update about this issue..." rows="3" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-white); font-size: 0.875rem; resize: vertical;"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="citizenUpdateImages">Add photos (optional)</label>
+                                            <input type="file" id="citizenUpdateImages" accept="image/*" multiple style="font-size: 0.8rem;">
+                                        </div>
+                                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                                            <button type="button" id="cancelCitizenUpdateBtn" class="btn btn-ghost" style="font-size: 0.8rem;">Cancel</button>
+                                            <button type="submit" id="submitCitizenUpdateBtn" class="btn btn-primary" style="font-size: 0.8rem;">Post Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div id="citizenUpdatesList" class="citizen-updates-list" style="display: flex; flex-direction: column; gap: 16px;">
+                                    <!-- Updates will be injected here -->
+                                </div>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="issue-location">
+                                <h3>Location</h3>
+                                <p id="issueAddress"></p>
+                                <div id="issueMap" class="issue-map" style="height:320px; border-radius:12px; overflow:hidden;"></div>
+                            </div>
+
+                            <!-- Voting -->
+                            <div class="issue-voting" style="margin-top:12px;">
+                                <button class="btn-upvote" id="upvoteBtn">
+                                    <span class="upvote-icon">👍</span>
+                                    <span id="upvoteCount">0</span>
+                                </button>
+                            </div>
+
+                            <!-- Social Sharing -->
+                            <div class="social-sharing" style="margin-top:18px;">
+                                <h4>Share this issue:</h4>
+                                <div class="share-buttons">
+                                    <button class="share-btn-main" id="mainShareBtn">
+                                        <span class="share-icon">🔗</span>
+                                        <span class="share-label">Share Issue</span>
+                                    </button>
+                                </div>
+                                <div class="share-stats" style="margin-top:8px;">
+                                    <span id="totalShares">0 shares</span>
+                                </div>
+                            </div>
+
+                            <!-- Share Modal -->
+                            <div id="shareModal" class="modal">
+                                <div class="modal-content share-modal-content">
+                                    <div class="modal-header">
+                                        <h2>Share Issue</h2>
+                                        <span class="close-modal" id="closeShareModal">&times;</span>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="share-preview-container">
+                                            <div class="share-preview-card">
+                                                <div class="preview-brand">
+                                                    <div class="brand-info">
+                                                        <h4>JanAwaaz</h4>
+                                                        <p>Civic issue shared by citizens</p>
+                                                    </div>
+                                                    <div class="preview-megaphone">📢</div>
+                                                </div>
+                                                <h3 id="previewTitle">Issue Title</h3>
+                                                <div class="preview-tags">
+                                                    <div class="preview-tag category">
+                                                        <span id="previewCategoryIcon">💧</span>
+                                                        <span id="previewCategory">WATER</span>
+                                                    </div>
+                                                    <div class="preview-tag upvotes">
+                                                        <span>👍</span>
+                                                        <span id="previewUpvotes">0</span> Upvote
+                                                    </div>
+                                                    <div class="preview-tag reporter">
+                                                        <span>👤</span>
+                                                        <span>1 Reporter</span>
+                                                    </div>
+                                                </div>
+                                                <p class="preview-description" id="previewDescription">Description text goes here...</p>
+                                                <div class="preview-location-box">
+                                                    <div class="loc-name">
+                                                        📍 <span id="previewLocation">Mumbai</span>
+                                                    </div>
+                                                    <div class="loc-tagline">
+                                                        Raise issues. Build pressure. Drive action.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="share-link-section">
+                                            <label>Direct Link</label>
+                                            <div class="copy-link-wrapper">
+                                                <input type="text" id="shareLinkInput" readonly>
+                                                <button id="copyLinkBtn" class="btn-copy">Copy</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="social-grid">
+                                            <button class="social-item twitter" data-platform="twitter">
+                                                <span class="social-icon">𝕏</span>
+                                                <span>Twitter</span>
+                                            </button>
+                                            <button class="social-item whatsapp" data-platform="whatsapp">
+                                                <span class="social-icon">📱</span>
+                                                <span>WhatsApp</span>
+                                            </button>
+                                            <button class="social-item facebook" data-platform="facebook">
+                                                <span class="social-icon">f</span>
+                                                <span>Facebook</span>
+                                            </button>
+                                            <button class="social-item linkedin" data-platform="linkedin">
+                                                <span class="social-icon">in</span>
+                                                <span>LinkedIn</span>
+                                            </button>
+                                        </div>
+
+                                        <div class="modal-actions">
+                                            <button id="downloadCardBtn" class="btn btn-secondary" style="width: 100%;">
+                                                📥 Download Visual Issue Card
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden Share Card Template -->
+                             <div id="shareCardOuter" class="share-card-outer">
+                                 <div id="shareCard" class="share-card-container">
+                                     <div class="share-card-header">
+                                         <div class="share-card-brand-group">
+                                             <h2>JanAwaaz</h2>
+                                             <p>Civic issue shared by citizens</p>
+                                         </div>
+                                         <div class="share-card-icon">📢</div>
+                                     </div>
+    
+                                     <h1 class="share-card-title" id="cardTitle">Issue Title</h1>
+    
+                                     <div class="share-card-tags">
+                                         <div class="card-tag tag-category">
+                                             <span id="cardCategoryIcon">💧</span>
+                                             <span id="cardCategory">WATER</span>
+                                         </div>
+                                         <div class="card-tag tag-upvotes">
+                                             <span>👍</span>
+                                             <span id="cardUpvotes">0</span> Upvote
+                                         </div>
+                                         <div class="card-tag tag-reporter">
+                                             <span>👤</span>
+                                             <span>1 Reporter</span>
+                                         </div>
+                                     </div>
+    
+                                     <p class="share-card-description" id="cardDescription">Description text goes here...</p>
+                                     
+                                     <div class="share-card-action-box">
+                                         <div class="action-box-location">
+                                             📍 <span id="cardLocation">Mumbai</span>
+                                         </div>
+                                         <div class="action-box-tagline">
+                                             Raise issues. Build pressure. Drive action.
+                                         </div>
+                                         <div class="action-box-link-row">
+                                             <div class="link-text">
+                                                 🔗 <span id="cardFullUrl">http://localhost:5000/issue/xxx</span>
+                                             </div>
+                                             <div class="copy-btn-mock">Copy Issue Link</div>
+                                         </div>
+                                     </div>
+    
+                                     <div class="share-card-bottom-row">
+                                         <div class="share-card-footer-text">
+                                             Generated from JanAwaaz • INSTAGRAM
+                                         </div>
+                                         <div class="share-card-qr-small" id="cardQrContainer">
+                                             <!-- QR Code injected here -->
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+
+                            <!-- Petition Status -->
+                            <div id="petitionStatus" class="petition-status" style="display: none; margin-top:16px;">
+                                <div class="petition-badge">
+                                    ✊ This issue has been converted to a PETITION
+                                </div>
+                                <p class="petition-info">This issue reached 10,000+ upvotes and is now a formal petition to authorities.</p>
+                                <a href="#" id="viewPetitionBtn" class="btn btn-primary">View Petition Document</a>
+                            </div>
+
+                            <!-- Complaint Filing Section -->
+                            <div id="complaintFilingSection" class="complaint-filing-section" style="display: none; margin-top:24px; padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg);">
+                                <h3 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <span>📄</span> File a Complaint
+                                </h3>
+                                <p id="complaintFilingInfo" class="complaint-info" style="margin-bottom: 16px; color: var(--text-secondary); font-size: 0.9rem;"></p>
+                                
+                                <div id="dissatisfiedAction" style="display: none; margin-bottom: 16px;">
+                                    <p style="margin-bottom: 10px; font-weight: 500;">Are you satisfied with the reason for rejection?</p>
+                                    <button class="btn btn-danger" id="markDissatisfiedBtn">No, I'm not satisfied</button>
+                                </div>
+
+                                <div id="complaintForm" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="complaintDescription">Additional details for Complaint (optional)</label>
+                                        <textarea id="complaintDescription" rows="3" maxlength="1000" placeholder="Explain why you are filing this Complaint..."></textarea>
+                                    </div>
+                                    <button class="btn btn-primary" id="submitComplaintBtn">Submit Complaint Application</button>
+                                </div>
+
+                                <div id="complaintStatus" style="display: none; padding: 12px; background: var(--bg-light); border-radius: 8px;">
+                                    <p style="font-weight: 600; color: var(--primary-color);">Complaint Filed Successfully!</p>
+                                    <p id="complaintRefNum" style="font-family: monospace; font-size: 1.1rem; margin: 8px 0;"></p>
+                                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Your Complaint has been submitted to the relevant authorities. You will be notified of any updates.</p>
+                                </div>
+                            </div>
+
+                            <!-- Complaint Generator -->
+                            <div id="complaintGenerator" class="complaint-generator" style="display: none; margin-top:16px;">
+                                <h3>File a Complaint</h3>
+                                <p class="complaint-info">This issue is unresolved and older than 30 days. You can generate a Complaint application.</p>
+                                <button class="btn btn-secondary" id="generateComplaintBtn">📄 Generate Complaint Application</button>
+                            </div>
+
+                            <!-- Authority Controls -->
+                            <div id="authorityControls" class="authority-controls" style="display: none; margin-top:16px;">
+                                <h3>Authority Actions</h3>
+                                
+                                <!-- Quick Actions -->
+                                <div class="quick-actions" id="quickActions">
+                                    <button class="btn btn-primary" id="acceptBtn">✓ Accept Issue</button>
+                                    <button class="btn btn-danger" id="denyBtn">✗ Deny Issue</button>
+                                </div>
+                                
+                                <div class="merge-action" style="margin-top: 12px;">
+                                    <button class="btn btn-secondary" id="mergeAuthorityBtn" style="background-color: #6366f1; border-color: #6366f1; width: 100%;">🔗 Merge with Authority</button>
+                                </div>
+                                
+                                <div id="unmergeAction" style="display: none; margin-top: 12px;">
+                                    <button class="btn btn-secondary" id="unmergeIssueBtn" style="background-color: #f59e0b; border-color: #f59e0b; width: 100%; color: white;">🔓 Unmerge this Issue</button>
+                                </div>
+                                
+                                <!-- Status Update -->
+                                <div class="form-group">
+                                    <label for="statusSelect">Update Status</label>
+                                    <select id="statusSelect">
+                                        <option value="pending">Pending</option>
+                                        <option value="accepted">Accepted</option>
+                                        <option value="in_progress">In Progress</option>
+                                        <option value="resolved">Resolved</option>
+                                        <option value="denied">Denied</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" id="updateStatusBtn">Update Status</button>
+
+                                <div id="draftRemarksPanel" class="draft-remarks-panel" style="display:none; margin-top:16px; padding: 16px; background: var(--bg-light); border: 1px dashed var(--primary-color); border-radius: 12px;">
+                                    <h4 style="margin-bottom:8px; display: flex; align-items: center; gap: 8px;">
+                                        <span>📝</span> Draft Remarks (Only visible to you)
+                                    </h4>
+                                    <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 12px;">Save notes or reminders about this issue before posting a public update.</p>
+                                    <div class="form-group">
+                                        <textarea id="draftRemarksText" rows="3" placeholder="Enter your private remarks here..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-white); font-size: 0.875rem; resize: vertical;"></textarea>
+                                    </div>
+                                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                                        <span id="draftSaveStatus" style="font-size: 0.75rem; color: var(--success-color); align-self: center; display: none;">Saved!</span>
+                                        <button class="btn btn-secondary" id="saveDraftRemarksBtn" style="font-size: 0.8125rem; padding: 6px 16px;">Save Draft</button>
+                                        <button class="btn btn-primary" id="publishSuccessBtn" style="font-size: 0.8125rem; padding: 6px 16px; display: none;">Publish Success Story</button>
+                                    </div>
+                                </div>
+
+                                <div id="progressUpdatePanel" class="progress-update-panel" style="display:none; margin-top:16px;">
+                                    <h4 style="margin-bottom:10px;">Post Progress Update</h4>
+                                    <form id="progressUpdateForm" class="progress-update-form">
+                                        <div class="form-group">
+                                            <label for="progressStage">Stage</label>
+                                            <select id="progressStage" required>
+                                                <option value="planning">Devising a plan of action</option>
+                                                <option value="permissions">Getting the necessary permissions</option>
+                                                <option value="team_creation">Creating teams</option>
+                                                <option value="physical_work">Physical working</option>
+                                                <option value="completion">Issue completed</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="progressPercent">Progress (%)</label>
+                                            <input id="progressPercent" type="number" min="0" max="100" value="0" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="progressUpdateText">Update details</label>
+                                            <textarea id="progressUpdateText" rows="3" maxlength="1000" placeholder="Share what has been completed in this stage" required></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="progressImages">Upload images (up to 5)</label>
+                                            <input id="progressImages" type="file" accept="image/*" multiple>
+                                        </div>
+                                        <button type="submit" class="btn btn-secondary" id="postProgressBtn">Post Update</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Rating Section -->
+                            <div id="ratingSection" class="rating-section" style="display: none; margin-top:16px;">
+                                <h3>Rate the Authority</h3>
+                                <p class="rating-intro">The issue has been resolved. Please rate the authority's performance:</p>
+                                
+                                <form id="ratingForm" class="rating-form">
+                                    <div class="rating-group">
+                                        <label>Speed (How quickly was the issue resolved?)</label>
+                                        <div class="star-rating">
+                                            <input type="radio" name="speedScore" value="5" id="speed5" required>
+                                            <label for="speed5">★</label>
+                                            <input type="radio" name="speedScore" value="4" id="speed4">
+                                            <label for="speed4">★</label>
+                                            <input type="radio" name="speedScore" value="3" id="speed3">
+                                            <label for="speed3">★</label>
+                                            <input type="radio" name="speedScore" value="2" id="speed2">
+                                            <label for="speed2">★</label>
+                                            <input type="radio" name="speedScore" value="1" id="speed1">
+                                            <label for="speed1">★</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="rating-group">
+                                        <label>Efficiency (How effectively was the issue handled?)</label>
+                                        <div class="star-rating">
+                                            <input type="radio" name="efficiencyScore" value="5" id="efficiency5" required>
+                                            <label for="efficiency5">★</label>
+                                            <input type="radio" name="efficiencyScore" value="4" id="efficiency4">
+                                            <label for="efficiency4">★</label>
+                                            <input type="radio" name="efficiencyScore" value="3" id="efficiency3">
+                                            <label for="efficiency3">★</label>
+                                            <input type="radio" name="efficiencyScore" value="2" id="efficiency2">
+                                            <label for="efficiency2">★</label>
+                                            <input type="radio" name="efficiencyScore" value="1" id="efficiency1">
+                                            <label for="efficiency1">★</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="rating-group">
+                                        <label>Satisfaction (Overall satisfaction with the resolution)</label>
+                                        <div class="star-rating">
+                                            <input type="radio" name="satisfactionScore" value="5" id="satisfaction5" required>
+                                            <label for="satisfaction5">★</label>
+                                            <input type="radio" name="satisfactionScore" value="4" id="satisfaction4">
+                                            <label for="satisfaction4">★</label>
+                                            <input type="radio" name="satisfactionScore" value="3" id="satisfaction3">
+                                            <label for="satisfaction3">★</label>
+                                            <input type="radio" name="satisfactionScore" value="2" id="satisfaction2">
+                                            <label for="satisfaction2">★</label>
+                                            <input type="radio" name="satisfactionScore" value="1" id="satisfaction1">
+                                            <label for="satisfaction1">★</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="ratingComment">Additional Comments (Optional)</label>
+                                        <textarea id="ratingComment" rows="3" placeholder="Share your experience..."></textarea>
+                                    </div>
+
+                                    <div id="ratingError" class="error-message"></div>
+                                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                                </form>
+                            </div>
+
+                            <!-- Existing Rating Display -->
+                            <div id="existingRating" class="existing-rating" style="display: none; margin-top:16px;">
+                                <h3>Your Rating</h3>
+                                <div class="rating-display">
+                                    <div class="rating-score">
+                                        <label>Speed:</label>
+                                        <span class="stars" id="displaySpeed"></span>
+                                    </div>
+                                    <div class="rating-score">
+                                        <label>Efficiency:</label>
+                                        <span class="stars" id="displayEfficiency"></span>
+                                    </div>
+                                    <div class="rating-score">
+                                        <label>Satisfaction:</label>
+                                        <span class="stars" id="displaySatisfaction"></span>
+                                    </div>
+                                    <div class="rating-comment" id="displayComment"></div>
+                                </div>
+                            </div>
+
+                            <!-- Comments Section -->
+                            <div class="comments-section" style="margin-top:16px;">
+                                <h3>Comments</h3>
+                                <form id="addCommentForm" class="comment-form">
+                                    <textarea id="commentInput" placeholder="Add a comment..." rows="3" required></textarea>
+                                    <button type="submit" class="btn btn-primary">Post Comment</button>
+                                </form>
+                                <div id="commentsList" class="comments-list"></div>
+                            </div>
+                        </div>
+
+                        <aside class="issue-sidebar">
+                            <div class="issue-actions info-card" style="padding:18px 20px;">
+                                <div class="severity-info">
+                                    <div class="severity-value" id="severityValue">0</div>
+                                    <div class="severity-label">Severity</div>
+                                </div>
+
+                                <!-- like button removed from sidebar to avoid duplication -->
+
+                                <div class="info-card" style="margin-top:8px;">
+                                    <h4>Quick Info</h4>
+                                    <div class="info-item">
+                                        <div class="info-label">Status</div>
+                                        <div class="info-value" id="sidebarStatus">—</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Category</div>
+                                        <div class="info-value" id="sidebarCategory">—</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">District</div>
+                                        <div class="info-value" id="sidebarDistrict">—</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Reported</div>
+                                        <div class="info-value" id="sidebarDate">—</div>
+                                    </div>
+                                    <div class="info-item" id="assignedToItem" style="display: none;">
+                                        <div class="info-label">Assigned To</div>
+                                        <div class="info-value" id="assignedTo"></div>
+                                    </div>
+                                    <div class="info-item" id="resolvedAtItem" style="display: none;">
+                                        <div class="info-label">Resolved</div>
+                                        <div class="info-value" id="resolvedAt"></div>
+                                    </div>
+                                </div>
+
+                                <div class="issue-actions" style="margin-top:8px;">
+                                    <button class="btn btn-danger" id="deleteIssueBtn" style="width:100%; display:none;">Delete Issue</button>
+                                </div>
+                            </div>
+
+                            
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar (standard widgets: stats, categories, contributors) -->
+        <aside class="feed-sidebar-right">
+            <div id="loginCTA" class="sidebar-widget" style="display:none;">
+                <h3>Join JanAwaaz</h3>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 16px;">Report issues, upvote, and help build better communities.</p>
+                <a href="/login" class="btn btn-primary" style="width: 100%; text-align: center; display: block; margin-bottom: 8px;">Sign In</a>
+                <a href="/login#register" class="btn btn-secondary" style="width: 100%; text-align: center; display: block;">Create Account</a>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>🇮🇳 India at a Glance</h3>
+                <div class="stats-chart" style="height:220px; padding: 8px 0;">
+                    <canvas id="statsChart" aria-label="India stats chart"></canvas>
+                </div>
+                <div class="sidebar-widget-text-fallback" style="display:none;">
+                    <div class="sidebar-widget-item">
+                        <div class="label">Total Issues</div>
+                        <div class="value" id="statTotal">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>📋 Browse by Category</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0;">
+                    <a href="/district?category=roads" class="category-tag-link">🛣️ Roads</a>
+                    <a href="/district?category=garbage" class="category-tag-link">🗑️ Garbage</a>
+                    <a href="/district?category=electricity" class="category-tag-link">💡 Electricity</a>
+                    <a href="/district?category=water" class="category-tag-link">💧 Water</a>
+                    <a href="/district?category=streetlight" class="category-tag-link">🔦 Streetlights</a>
+                    <a href="/district?category=drainage" class="category-tag-link">🌊 Drainage</a>
+                </div>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3>🏆 Top Contributors</h3>
+                <div id="topContributors">
+                    <div style="color: var(--text-secondary); font-size: 0.875rem; padding: 8px 0;">Loading...</div>
+                </div>
+                <a href="/leaderboard" style="display: block; margin-top: 12px; color: var(--primary-color); font-size: 0.875rem; text-decoration: none;">View full leaderboard →</a>
+            </div>
+        </aside>
+
+        
+    </div>
+
+    <!-- Media Gallery Modal -->
+    <div id="mediaModal" class="media-modal">
+        <span class="media-modal-close" onclick="closeMediaModal()">&times;</span>
+        <div class="media-modal-nav media-modal-prev" onclick="changeMedia(-1)">&#10094;</div>
+        <div class="media-modal-nav media-modal-next" onclick="changeMedia(1)">&#10095;</div>
+        <div class="media-modal-content" id="mediaModalContent"></div>
+        <div class="media-modal-counter" id="mediaModalCounter"></div>
+    </div>
+
+    <!-- Merge with Authority Modal -->
+    <div id="mergeModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Merge with Authority</h2>
+                <span class="close-modal" id="closeMergeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px;">Select an authority to collaborate with or merge this issue into. A request will be sent to them for approval.</p>
+                <div class="form-group">
+                    <label for="authoritySearch">Search Authority</label>
+                    <input type="text" id="authoritySearch" placeholder="Type name, department or district...">
+                </div>
+                <div id="authoritySearchResults" class="search-results-list" style="max-height: 300px; overflow-y: auto; margin-top: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <!-- Results will be injected here -->
+                    <p style="padding: 12px; text-align: center; color: var(--text-secondary);">Start typing to search...</p>
+                </div>
+                <div id="selectedAuthorityContainer" style="display: none; margin-top: 16px; padding: 12px; background: var(--bg-light); border-radius: 8px; border-left: 4px solid var(--primary-color);">
+                    <p style="font-weight: 600; margin-bottom: 4px;">Selected Authority:</p>
+                    <p id="selectedAuthorityName" style="margin: 0;"></p>
+                    <input type="hidden" id="selectedAuthorityId">
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn btn-secondary" id="cancelMergeBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmMergeBtn" disabled>Send Merge Request</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/verification.js"></script>
+    <script src="/js/realtime.js"></script>
+    <script src="/js/map.js"></script>
+    <script src="/js/issue.js"></script>
+    <script src="/js/comments.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/statsChart.js"></script>
+    <script>
+        async function initSidebarWidgets() {
+            // Check for admin context
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === 'true') {
+                // Change sidebar to admin sidebar
+                const sidebarNav = document.querySelector('.sidebar-nav');
+                if (sidebarNav) {
+                    sidebarNav.innerHTML = `
+                        <a href="/admin#home" title="Home">
+                            <span class="nav-icon">🏠</span>
+                            <span>Home</span>
+                        </a>
+                        <a href="/admin#users" title="Users">
+                            <span class="nav-icon">👥</span>
+                            <span>Users</span>
+                        </a>
+                        <a href="/admin#issues" title="Issues">
+                            <span class="nav-icon">📋</span>
+                            <span>Issues</span>
+                        </a>
+                        <a href="/admin#authorities" title="Authorities">
+                            <span class="nav-icon">🏛️</span>
+                            <span>Authorities</span>
+                        </a>
+                        <a href="/admin#moderation" title="Moderation">
+                            <span class="nav-icon">🛡️</span>
+                            <span>Moderation</span>
+                        </a>
+                        <a href="/admin#flagged" title="Flagged Users">
+                            <span class="nav-icon">🚩</span>
+                            <span>Flagged Users</span>
+                        </a>
+                        <a href="/admin#reports" title="Reports">
+                            <span class="nav-icon">📊</span>
+                            <span>Reports</span>
+                        </a>
+                        <a href="/admin#announcements" title="Announcements">
+                            <span class="nav-icon">📣</span>
+                            <span>Announcements</span>
+                        </a>
+                        <a href="#" id="navLogout" onclick="logout(); return false;" title="Logout">
+                            <span class="nav-icon">🚪</span>
+                            <span>Logout</span>
+                        </a>
+                    `;
+                }
+            }
+
+            // Load national stats for the sidebar chart
+            try {
+                const res = await fetch(`${API_URL}/stats/overview`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const s = data.overview || {};
+                    try { if (typeof updateStatsChart === 'function') updateStatsChart(s); } catch (e) {}
+                }
+            } catch (e) {}
+
+            // Load top contributors
+            try {
+                const res = await fetch(`${API_URL}/leaderboard?limit=5`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const users = data.leaderboard || [];
+                const container = document.getElementById('topContributors');
+                if (!users.length) { container.innerHTML = '<div style="color:var(--text-secondary); font-size:0.875rem; padding:8px 0;">No data yet.</div>'; return; }
+                container.innerHTML = users.slice(0,5).map((u,i)=>{
+                    const name = u.name || (u.userId && u.userId.displayName) || 'Contributor';
+                    const username = u.username || (u.userId && u.userId.username) || '';
+                    return `\n                    <a href="${username?`/profile/${username}`:'/leaderboard'}" style="display:flex; align-items:center; gap:10px; padding:8px 0; text-decoration:none; color:inherit; border-bottom: 1px solid var(--border-color);">\n                        <span style="font-weight:700; color:var(--text-secondary); width:18px; font-size:0.8125rem;">${i+1}</span>\n                        <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--primary-color), #7c3aed); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.875rem; flex-shrink:0;">${name.charAt(0).toUpperCase()}</div>\n                        <div style="flex:1; min-width:0;">\n                            <div style="font-weight:600; font-size:0.875rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>\n                            <div style="color:var(--text-secondary); font-size:0.75rem;">${u.department||u.designation||''} · ${u.resolvedCount||0} resolved</div>\n                        </div>\n                    </a>`;
+                }).join('');
+            } catch (e) {}
+        }
+        document.addEventListener('DOMContentLoaded', initSidebarWidgets);
+    </script>
+</body>
+</html>
